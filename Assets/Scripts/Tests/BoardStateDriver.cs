@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoardStateDriver : MonoBehaviour
+public class BoardDriver : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -29,7 +29,7 @@ public class BoardStateDriver : MonoBehaviour
             {0,0,0,1,0,},
             {0,0,0,0,0,},
         };
-        BoardState bs = new BoardState(obstacles, penguins, targets, 0);       
+        Board bs = new Board(obstacles, penguins, targets);       
         Debug.Log(bs.make_move(1,1, 1,0)); // move down
         Debug.Log(bs.make_move(3,1, 0,1)); // move right
     }

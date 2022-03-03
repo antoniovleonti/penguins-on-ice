@@ -1,13 +1,12 @@
 using System;
 
-public class BoardState 
+public class Board 
 {
     public int[,] obstacles {get;}
     public int[,] penguins {get;}
     public int[,] targets {get;}
-    public int move_count {get; set;}
 
-    public BoardState(int[,] _obstacles, int[,] _penguins, int[,] _targets, int _move_count)
+    public Board(int[,] _obstacles, int[,] _penguins, int[,] _targets)
     {
         // copy obstacles array
         obstacles = new int[_obstacles.GetLength(0), _obstacles.GetLength(1)];
@@ -19,8 +18,6 @@ public class BoardState
 
         targets = new int[_targets.GetLength(0), _targets.GetLength(1)];
         Array.Copy(_targets, targets, _targets.Length);
-
-        move_count = _move_count;
     }
 
     public bool is_in_bounds(int row, int col)
@@ -61,7 +58,6 @@ public class BoardState
         {
             penguins[start_row,start_col] = 0;
             penguins[new_row,new_col] = active_penguin;
-            move_count++;
         }
         // return answers question "was this a win?"
         return targets[new_row,new_col] == active_penguin;

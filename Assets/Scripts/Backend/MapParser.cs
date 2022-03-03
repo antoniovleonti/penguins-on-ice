@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapParser : MonoBehaviour
+public class MapParser 
 {
     // // Start is called before the first frame update
     // void Start()
@@ -18,7 +18,7 @@ public class MapParser : MonoBehaviour
 
     //Input: String mapFilePath: location of map file, may be relative or absolute
     //Output: BoardState boardMap: BoardState object reflecting the specified map file
-    static BoardState readMapFile(string mapFilePath) {
+    static Board readMapFile(string mapFilePath) {
         string[] fileLines = System.IO.File.ReadAllLines(mapFilePath);
         int boardSize = int.Parse(fileLines[0]);
         int stringLength = fileLines.Length;
@@ -26,7 +26,7 @@ public class MapParser : MonoBehaviour
         int[,] obstacles = new int[boardSize, boardSize];
         int[,] penguins = new int[boardSize, boardSize];
         int[,] targets = new int[boardSize, boardSize];
-        BoardState boardMap = new BoardState(obstacles, penguins, targets);
+        Board boardMap = new Board(obstacles, penguins, targets);
 
         //i starts at 1 to skip first line containing boardSize
         for (int i = 1; i < stringLength; i++) {
@@ -44,7 +44,7 @@ public class MapParser : MonoBehaviour
              int j: location of the referred char for second dimension on all arrays in board
              BoardState board: BoardState object that will be updated based on the character
     Output: Nothing returned, but board is updated*/
-    static void checkChar(char x, int i, int j, BoardState board) {
+    static void checkChar(char x, int i, int j, Board board) {
         switch (x) {
             case '0':
                 board.obstacles[i,j] = 0;
@@ -61,7 +61,6 @@ public class MapParser : MonoBehaviour
                 board.targets[i,j] = 1;
                 break;
             default:
-                Console.Write("Tf is this lmao");
                 break;
         }
     }
