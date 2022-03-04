@@ -47,18 +47,18 @@ public class MapParser
     static void checkChar(char x, int i, int j, Board board) {
         switch (x) {
             case '0':
-                board.obstacles[i,j] = 0;
-                board.penguins[i,j] = 0;
-                board.targets[i,j] = 0;
+                board.Obstacles[i,j] = 0;
+                board.Penguins[i,j] = 0;
+                board.Targets[i,j] = 0;
                 break;
             case '1':
-                board.obstacles[i,j] = 1;
+                board.Obstacles[i,j] = 1;
                 break;
             case 'a':
-                board.penguins[i,j] = 1;
+                board.Penguins[i,j] = 1;
                 break;
             case 'A':
-                board.targets[i,j] = 1;
+                board.Targets[i,j] = 1;
                 break;
             default:
                 break;
