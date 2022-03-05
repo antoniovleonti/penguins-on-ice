@@ -4,9 +4,20 @@ using UnityEngine;
 
 public class IOManager : MonoBehaviour
 {
-    public Texture2D IceTex; // editor-set texture for ice
-    private Sprite iceSprite; // sprite to be displayed for ice
-    private float iceSpriteScale; // size of sprite in world-space
+    // you can edit these arrays from the unity editor
+    // put textures in here that correspond to the values
+    // we expect to see. ex. first obstacleTexArr element
+    // should be the background ice texture.
+    public Texture2D[] ObstacleTexArr; // put obstacle textures here
+    public Texture2D[] PenguinTexArr; // put penguins here
+    public Texture2D[] TargetTexArr; // targets here
+
+    // these are generated programmatically from the TexArrs
+    private Sprite[] obstacleSpriteArr; 
+    private Sprite[] penguinSpriteArr;
+    private Sprite[] targetSpriteArr;
+
+    private float spriteScale; // size of sprite in world-space
 
     private Board board; // backend board we are displaying
     private GameObject boardObject; // parent object to all board display objects
@@ -46,13 +57,20 @@ public class IOManager : MonoBehaviour
         // add a board grid which will do grid position calculations for us
         boardGrid = boardObject.AddComponent(typeof(Grid)) as Grid;
 
-        // create sprite from provided texture
-        iceSprite = Sprite.Create(
-            IceTex, new Rect(0.0f, 0.0f, IceTex.width, IceTex.height), 
-            new Vector2(0.5f, 0.5f), 100.0f ); 
+        // create sprites from provided texture(s)
+        int nTextures = ObstacleTexArr.GetLength(0);
+        obstacleSpriteArr = new Sprite[nTextures];
+        for (int i = 0; i < nTextures; i++)
+        {
+            Texture2D tex = ObstacleTexArr[i];
+            obstacleSpriteArr[i] = Sprite.Create(
+                tex, new Rect(0.0f, 0.0f, tex.width, tex.height), 
+                new Vector2(0.5f, 0.5f), 100.0f ); 
+        }
+        // ^ do the same for penguins and targets down here
 
         // resize grid to match size of sprites
-        iceSpriteScale = iceSprite.bounds.extents.x;
+        spriteScale = obstacleSpriteArr[0].bounds.extents.x;
     }
 
     // Update is called once per frame
@@ -81,11 +99,12 @@ public class IOManager : MonoBehaviour
                 // the tile to that position
                 tmp.transform.localPosition = 2 * boardGrid.CellToLocal(adjustedIdx);
                 // use the iceSpriteScale to make the sprite length and width (1,1)
-                tmp.transform.localScale = tmp.transform.localScale / iceSpriteScale;
+                tmp.transform.localScale = tmp.transform.localScale / spriteScale;
                 
                 // now add a sprite renderer so we can see our game object
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>(); 
-                renderer.sprite = iceSprite;
+                // pick the right sprite based on the number in the obstacles array
+                renderer.sprite = obstacleSpriteArr[board.Obstacles[i,j]];
             }
         }
         // add walls (even indices in board.Obstacles -- on tile edges)
