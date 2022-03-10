@@ -1,0 +1,3 @@
+is_global = true
+build_property.RootNamespace = PriorityQueues
+build_property.ProjectDir = /Users/antonioleonti/git/unity/penguins/Assets/Scripts/Backend/PriorityQueues/
