@@ -18,6 +18,8 @@ public class Board
     {
         Rows = _obstacles.GetLength(0);
         Columns = _obstacles.GetLength(1);
+        RowCells = (Rows-1) / 2;
+        ColumnCells = (Columns-1) / 2;
         // copy obstacles array
         Obstacles = new int[Rows, Columns];
         Array.Copy(_obstacles, Obstacles, Rows * Columns);
