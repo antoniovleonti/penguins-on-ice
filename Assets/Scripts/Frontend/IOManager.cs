@@ -28,25 +28,31 @@ public class IOManager : MonoBehaviour
     {
         // create a new board
         int[,] obstacles = {
-            {1,1,1,1,1,},
-            {1,0,0,0,1,},
-            {1,0,0,0,1,},
-            {1,0,0,0,1,},
-            {1,1,1,1,1,},
+            {1,1,1,1,1,1,1,},
+            {1,0,1,0,0,0,1,},
+            {1,0,0,0,0,0,1,},
+            {1,0,1,0,1,0,1,},
+            {1,0,0,0,0,0,1,},
+            {1,0,0,0,0,0,1,},
+            {1,1,1,1,1,1,1,},
         };
         int[,] penguins = {
-            {0,0,0,0,0,},
-            {0,1,0,0,0,},
-            {0,0,0,0,0,},
-            {0,0,0,0,0,},
-            {0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,1,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,1,0,},
+            {0,0,0,0,0,0,0,},
         };
         int[,] targets = {
-            {0,0,0,0,0,},
-            {0,0,0,0,0,},
-            {0,0,0,0,0,},
-            {0,0,0,1,0,},
-            {0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,1,0,},
+            {0,0,0,0,0,0,0,},
         };
         board = new Board(obstacles, penguins, targets);
 
@@ -84,6 +90,14 @@ public class IOManager : MonoBehaviour
 
     void DrawBoard()
     {
+        DrawBackground();
+        DrawWalls();
+        DrawPenguins();
+        DrawTargets();
+    }
+
+    void DrawBackground()
+    {
         // add background tiles (odd indices in board.obstacles)
         for (int i = 1; i < board.Rows; i += 2)
         {
@@ -107,10 +121,143 @@ public class IOManager : MonoBehaviour
                 renderer.sprite = obstacleSpriteArr[board.Obstacles[i,j]];
             }
         }
+    }
+
+    void DrawWalls()
+    {
         // add walls (even indices in board.Obstacles -- on tile edges)
+        //horizontal walls (Even Row, Odd Column)
+        for (int i = 0; i < board.RowCells; i++)
+        {
+            for (int j = 0; j < board.ColumnCells; j++)
+            {
+                //refer to cell
+                int I = Board.CellToCoord(i);
+                int J = Board.CellToCoord(j);
+                //check for horizontal wall above cell
+                if(board.Obstacles[I-1,J] == 1)
+                {
+                    //create new object for the wall, set parent to boardObject and scale to 1
+                    GameObject tmp = new GameObject(""+ i + " " + j);
+                    tmp.transform.SetParent(boardObject.transform);
+                    tmp.transform.localScale = tmp.transform.localScale / spriteScale;
 
+                    //create new Linerenderer, set texture and width
+                    LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
+                    renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[1]);
+                    float width  = 0.1f;
+                    renderer.startWidth = width;
+                    renderer.endWidth = width;
+
+                    //1,1   -1,3    1,3
+                    //1,3    1,3    3,3
+                    //3,1   -1,1    1,1
+                    //3,3    1,1    3,1
+                    //Debug.Log("i:"+i+"\tj:"+j);
+                    //Debug.Log("I:"+I+"\tJ:"+J);
+                    //Debug.Log("("+(J-2)+","+(board.Columns - (I+1))+")");
+                    //Debug.Log("("+J+","+(board.Columns - (I+1))+")");
+
+                    //assign first and second index to draw line
+                    var firstIdx = new Vector3Int(J-2, board.Columns - (I+1), 1);
+                    var secondIdx = new Vector3Int(J, board.Columns - (I+1), 1);
+                    renderer.SetPosition(0, firstIdx);
+                    renderer.SetPosition(1, secondIdx);
+                }
+                //check for vertical wall to the left of the cell
+                if(board.Obstacles[I,J-1] == 1)
+                {
+                    //create new object for the wall, set parent to boardObject and scale to 1
+                    GameObject tmp = new GameObject(""+ i + " " + j);
+                    tmp.transform.SetParent(boardObject.transform);
+                    tmp.transform.localScale = tmp.transform.localScale / spriteScale;
+
+                    //create new Linerenderer, set texture and width
+                    LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
+                    renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[1]);
+                    float width  = 0.1f;
+                    renderer.startWidth = width;
+                    renderer.endWidth = width;
+                    
+                    //1,1   -1,1   -1,3
+                    //1,3    1,1    1,3
+                    //3,1   -1,-1  -1,1
+                    //3,3    1,-1   1,1
+                    //assign first and second index to draw line
+                    var firstIdx = new Vector3Int(J-2, board.Columns - (I+3), 1);
+                    var secondIdx = new Vector3Int(J-2, board.Columns - (I+1), 1);
+                    renderer.SetPosition(0, firstIdx);
+                    renderer.SetPosition(1, secondIdx);
+                }
+
+                //exception case (End row, i = rowcells -1)
+                //check for horizontal wall below cell
+                if( i == (board.RowCells - 1))
+                {
+                    if(board.Obstacles[I+1,J] == 1)
+                    {
+                        //create new object for the wall, set parent to boardObject and scale to 1
+                        GameObject tmp = new GameObject(""+ i + " " + j);
+                        tmp.transform.SetParent(boardObject.transform);
+                        tmp.transform.localScale = tmp.transform.localScale / spriteScale;
+
+                        //create new Linerenderer, set texture and width
+                        LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
+                        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[1]);
+                        float width  = 0.1f;
+                        renderer.startWidth = width;
+                        renderer.endWidth = width;
+                        
+                        //3,1  -1,-1    1,-1
+                        //3,3   1,-1    3,-1
+                        //assign first and second index to draw line
+                        var firstIdx = new Vector3Int((J-2), (I+1) - board.Columns, 1);
+                        var secondIdx = new Vector3Int(J, (I+1) - board.Columns, 1);
+                        renderer.SetPosition(0, firstIdx);
+                        renderer.SetPosition(1, secondIdx);
+                    }
+                }
+
+                //exception case (End Column, j = columncells -1)
+                //check for vertical wall to the right of the cell
+                if( j == (board.ColumnCells - 1))
+                {
+                    if(board.Obstacles[I,J+1] == 1)
+                    {
+                        //create new object for the wall, set parent to boardObject and scale to 1
+                        GameObject tmp = new GameObject(""+ i + " " + j);
+                        tmp.transform.SetParent(boardObject.transform);
+                        tmp.transform.localScale = tmp.transform.localScale / spriteScale;
+
+                        //create new Linerenderer, set texture and width
+                        LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
+                        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[1]);
+                        float width  = 0.1f;
+                        renderer.startWidth = width;
+                        renderer.endWidth = width;
+                        
+                        //1,3  3,1    3,3
+                        //3,3  3,-1   3,1
+                        //assign first and second index to draw line
+                        Debug.Log("i:"+i+"\tj:"+j);
+                        Debug.Log("I:"+I+"\tJ:"+J);
+                        var firstIdx = new Vector3Int(J, board.Columns - (I+3), 1);
+                        var secondIdx = new Vector3Int(J, board.Columns - (I+1), 1);
+                        renderer.SetPosition(0, firstIdx);
+                        renderer.SetPosition(1, secondIdx);
+                    }
+                }
+            }
+        }
+    }
+
+    void DrawPenguins()
+    {
         // add penguins (odd indices in board.Penguins -- in front of tiles)
+    }
 
+    void DrawTargets()
+    {
         // add targets (odd indices in board.Targets -- int front of tiles, behind penguins)
     }
 

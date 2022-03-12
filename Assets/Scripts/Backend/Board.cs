@@ -1,17 +1,25 @@
 using System;
+using UnityEngine;
 
 public class Board 
 {
-    public int[,] Obstacles {get;}
-    public int[,] Penguins {get;}
-    public int[,] Targets {get;}
-    public int Rows {get;}
-    public int Columns {get;}
+    public int[,] Obstacles;
+    public int[,] Penguins;
+    public int[,] Targets; 
+    public int RowCells;
+    public int Rows; 
+    public int ColumnCells;
+    public int Columns;
+
+    public Board()
+    {}
 
     public Board(int[,] _obstacles, int[,] _penguins, int[,] _targets)
     {
         Rows = _obstacles.GetLength(0);
         Columns = _obstacles.GetLength(1);
+        RowCells = (Rows-1) / 2;
+        ColumnCells = (Columns-1) / 2;
         // copy obstacles array
         Obstacles = new int[Rows, Columns];
         Array.Copy(_obstacles, Obstacles, Rows * Columns);
@@ -24,15 +32,27 @@ public class Board
         Array.Copy(_targets, Targets, Rows * Columns);
     }
 
-    public bool is_in_bounds(int row, int col)
+    public static int CellToCoord(int cell)
     {
-        return row < Rows && col < Columns;
+        return cell * 2 + 1;
+    }
+
+    public bool CoordIsInBounds(int row, int col)
+    {
+        return 0 <= row && row < Rows && 
+            0 <= col && col < Columns;
+    }
+
+    public bool CellIsInBounds(int row, int col)
+    {
+        return 0 <= row && row < RowCells &&
+            0 <= col && col < ColumnCells;
     }
 
     public bool make_move(int start_row, int start_col, int d_row, int d_col)
     {
         // validate input
-        if (!is_in_bounds(start_row, start_col))
+        if (!CoordIsInBounds(start_row, start_col))
             throw new IndexOutOfRangeException("(start_row, start_col) not a valid coordinate.");
 
         if (!(Math.Abs(d_row) + Math.Abs(d_col) == 1))
@@ -45,7 +65,7 @@ public class Board
         int active_penguin = Penguins[start_row,start_col];
         int new_row = start_row, new_col = start_col;
         // step penguin until next obstacle or penguin is found
-        while ( is_in_bounds(new_row + d_row * 2, new_col + d_col * 2) &&
+        while ( CoordIsInBounds(new_row + d_row * 2, new_col + d_col * 2) &&
                 Penguins[new_row + d_row * 2,new_col + d_col * 2] == 0 &&
                 Obstacles[new_row + d_row,new_col + d_col] == 0
         ){
