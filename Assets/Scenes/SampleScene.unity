@@ -154,8 +154,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ObstacleTexArr:
   - {fileID: 2800000, guid: db750325989564987a34393247d883b4, type: 3}
-  PenguinTexArr: []
-  TargetTexArr: []
+  - {fileID: 2800000, guid: db750325989564987a34393247d883b4, type: 3}
+  PenguinTexArr:
+  - {fileID: 2800000, guid: 4adeaf2d2b1c7417e89f026626d8264f, type: 3}
+  - {fileID: 2800000, guid: 4adeaf2d2b1c7417e89f026626d8264f, type: 3}
+  - {fileID: 2800000, guid: 4adeaf2d2b1c7417e89f026626d8264f, type: 3}
+  - {fileID: 2800000, guid: 4adeaf2d2b1c7417e89f026626d8264f, type: 3}
+  TargetTexArr:
+  - {fileID: 2800000, guid: a9716c16a44a94eed9b5c90fbf4d9bdd, type: 3}
+  - {fileID: 2800000, guid: a9716c16a44a94eed9b5c90fbf4d9bdd, type: 3}
+  - {fileID: 2800000, guid: a9716c16a44a94eed9b5c90fbf4d9bdd, type: 3}
+  - {fileID: 2800000, guid: a9716c16a44a94eed9b5c90fbf4d9bdd, type: 3}
 --- !u!4 &8460533
 Transform:
   m_ObjectHideFlags: 0

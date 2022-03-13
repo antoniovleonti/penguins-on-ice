@@ -9,6 +9,7 @@ public class ProceduralBoard : Board
     // inherits all properties of Board
     public int[,] TargetCells;
     public int TargetCount;
+    private System.Random rnd = new System.Random(); 
     private bool[,] taken; // used to generate board and track free spaces
     private int[,,] shortestPathTrees;
     private int nPenguins;
@@ -208,7 +209,6 @@ public class ProceduralBoard : Board
         int yTop, int yBottom, int xLeft, int xRight, // bounds
         Func<int, int, bool> doesMatch // predicate to match
     ){
-        System.Random rnd = new System.Random(); 
         // store the indices of matches in the order we find them
         List<(int,int)> matches = new List<(int,int)>();
         for (int i = yTop; i < yBottom; i++)
