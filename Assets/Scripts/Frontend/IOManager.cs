@@ -32,7 +32,7 @@ public class IOManager : MonoBehaviour
             {1,0,1,0,0,0,1,},
             {1,0,0,0,0,0,1,},
             {1,0,1,0,1,0,1,},
-            {1,0,0,0,0,0,1,},
+            {1,0,0,1,0,0,1,},
             {1,0,0,0,0,0,1,},
             {1,1,1,1,1,1,1,},
         };
@@ -42,7 +42,7 @@ public class IOManager : MonoBehaviour
             {0,0,0,0,0,0,0,},
             {0,0,0,0,0,0,0,},
             {0,0,0,0,0,0,0,},
-            {0,0,0,0,0,1,0,},
+            {0,0,0,0,0,0,0,},
             {0,0,0,0,0,0,0,},
         };
         int[,] targets = {
@@ -74,7 +74,25 @@ public class IOManager : MonoBehaviour
                 new Vector2(0.5f, 0.5f), 100.0f ); 
         }
         // ^ do the same for penguins and targets down here
+        nTextures = PenguinTexArr.GetLength(0);
+        penguinSpriteArr = new Sprite[nTextures];
+        for (int i = 0; i < nTextures; i++)
+        {
+            Texture2D tex = PenguinTexArr[i];
+            penguinSpriteArr[i] = Sprite.Create(
+                tex, new Rect(0.0f, 0.0f, tex.width, tex.height), 
+                new Vector2(0.5f, 0.5f), 100.0f ); 
+        }
 
+        nTextures = TargetTexArr.GetLength(0);
+        targetSpriteArr = new Sprite[nTextures];
+        for (int i = 0; i < nTextures; i++)
+        {
+            Texture2D tex = TargetTexArr[i];
+            targetSpriteArr[i] = Sprite.Create(
+                tex, new Rect(0.0f, 0.0f, tex.width, tex.height), 
+                new Vector2(0.5f, 0.5f), 100.0f ); 
+        }
         // resize grid to match size of sprites
         spriteScale = obstacleSpriteArr[0].bounds.extents.x;
     }
@@ -144,7 +162,7 @@ public class IOManager : MonoBehaviour
 
                     //create new Linerenderer, set texture and width
                     LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
-                    renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[1]);
+                    renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[0]);
                     float width  = 0.1f;
                     renderer.startWidth = width;
                     renderer.endWidth = width;
@@ -174,7 +192,7 @@ public class IOManager : MonoBehaviour
 
                     //create new Linerenderer, set texture and width
                     LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
-                    renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[1]);
+                    renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[0]);
                     float width  = 0.1f;
                     renderer.startWidth = width;
                     renderer.endWidth = width;
@@ -203,7 +221,7 @@ public class IOManager : MonoBehaviour
 
                         //create new Linerenderer, set texture and width
                         LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
-                        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[1]);
+                        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[0]);
                         float width  = 0.1f;
                         renderer.startWidth = width;
                         renderer.endWidth = width;
@@ -231,7 +249,7 @@ public class IOManager : MonoBehaviour
 
                         //create new Linerenderer, set texture and width
                         LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
-                        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[1]);
+                        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[0]);
                         float width  = 0.1f;
                         renderer.startWidth = width;
                         renderer.endWidth = width;
@@ -253,12 +271,57 @@ public class IOManager : MonoBehaviour
 
     void DrawPenguins()
     {
-        // add penguins (odd indices in board.Penguins -- in front of tiles)
+        for (int i = 1; i < board.Rows; i += 2)
+        {
+            for (int j = 1; j < board.Columns; j += 2)
+            {
+                if(board.Penguins[i,j] == 0){continue;}
+                // set up a game object for this tile
+                GameObject tmp = new GameObject("" + i + " " + j);
+                tmp.transform.SetParent(boardObject.transform);
+                // must adjust indices to account for the fact that background
+                // tiles only exist on odd-numbered indices in array
+                var adjustedIdx = new Vector3Int((i-1)/2, (j-1)/2, -1);
+                // use grid component to calculate correct position of tile and move
+                // the tile to that position
+                tmp.transform.localPosition = 2 * boardGrid.CellToLocal(adjustedIdx);
+                // use the SpriteScale to make the sprite length and width (1,1)
+                tmp.transform.localScale = tmp.transform.localScale / spriteScale;
+                tmp.transform.localScale = tmp.transform.localScale * 0.9f;
+
+                // now add a sprite renderer so we can see our game object
+                SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>(); 
+                // pick the right sprite based on the number in the obstacles array
+                renderer.sprite = penguinSpriteArr[board.Penguins[i,j] - 1];
+            }
+        }
     }
 
     void DrawTargets()
     {
-        // add targets (odd indices in board.Targets -- int front of tiles, behind penguins)
+        for (int i = 1; i < board.Rows; i += 2)
+        {
+            for (int j = 1; j < board.Columns; j += 2)
+            {
+                if(board.Targets[i,j] == 0){continue;}
+                // set up a game object for this tile
+                GameObject tmp = new GameObject("" + i + " " + j);
+                tmp.transform.SetParent(boardObject.transform);
+                // must adjust indices to account for the fact that background
+                // tiles only exist on odd-numbered indices in array
+                var adjustedIdx = new Vector3Int((i-1)/2, (j-1)/2, -1);
+                // use grid component to calculate correct position of tile and move
+                // the tile to that position
+                tmp.transform.localPosition = 2 * boardGrid.CellToLocal(adjustedIdx);
+                // use the SpriteScale to make the sprite length and width (1,1)
+                tmp.transform.localScale = tmp.transform.localScale / spriteScale;
+                tmp.transform.localScale = tmp.transform.localScale * 0.9f;
+                // now add a sprite renderer so we can see our game object
+                SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>(); 
+                // pick the right sprite based on the number in the obstacles array
+                renderer.sprite = targetSpriteArr[board.Targets[i,j] - 1];
+            }
+        }
     }
 
     void EraseBoard()
