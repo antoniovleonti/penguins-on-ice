@@ -6,9 +6,10 @@ using UnityEngine;
 
 public class ProceduralBoard : Board
 {
-    // inherits all properties of Board, below are two new properties.
+    // inherits all properties of Board
+    public int[,] TargetCells;
+    public int TargetCount;
     private bool[,] taken; // used to generate board and track free spaces
-    private List<(int,int)> targetIdx;
     private int[,,] shortestPathTrees;
     private int nPenguins;
 
@@ -24,7 +25,8 @@ public class ProceduralBoard : Board
         // this will ensure no corners are too close to each other
         nPenguins = nPenguins_;
         taken = new bool[RowCells, ColumnCells];
-        targetIdx = new List<(int,int)>();
+        TargetCells = new int[16,2];
+        TargetCount = 0;
         shortestPathTrees = new int[nPenguins, RowCells, ColumnCells];
 
         // create outside edges
@@ -58,37 +60,38 @@ public class ProceduralBoard : Board
 
     private void assignTargets()
     {
-        int nTargets = targetIdx.Count;
         // will be sorted according to distance
         int[][] idx = new int[nPenguins][];
-        for (int i = 0; i < nPenguins; i++) idx[i] = new int[nTargets];
+        for (int i = 0; i < nPenguins; i++) idx[i] = new int[TargetCount];
 
-        // this arra
+        // create an array of target IDs for each penguin that is sorted
+        // by how difficult it is for that penguin to get to that target
         for (int p = 0; p < nPenguins; p++)
         {
-            int[] dist = new int[nTargets];
-            for (int t = 0; t < nTargets; t++)
+            int[] dist = new int[TargetCount];
+            for (int t = 0; t < TargetCount; t++)
             {
                 idx[p][t] = t;
-                int y,x; (y,x) = targetIdx[t];
+                int y = TargetCells[t,0], x = TargetCells[t,1];
+
                 dist[t] = shortestPathTrees[p,y,x];
             }
             // sort indices by distance from this penguin to that target
-            Array.Sort(dist,idx[p],0,nTargets,null);
+            Array.Sort(dist,idx[p],0,TargetCount,null);
         }
         // now 'draft' all targets to the robot which is furthest from it
-        bool[] allocated = new bool[nTargets]; // has this target been used yet?
-        for (int p=0,n=0; n < nTargets; p=(p+1)%nPenguins,n++)
+        bool[] allocated = new bool[TargetCount]; // has this target been used yet?
+        for (int p=0,n=0; n < TargetCount; p=(p+1)%nPenguins,n++)
         {
-            for (int t = nTargets-1; t >= 0; t--)
+            for (int t = TargetCount-1; t >= 0; t--)
             {
                 // grab the most difficult target to reach for this penguin 
                 // (which isn't already assigned to another penguin)
                 int hardest = idx[p][t];
                 if (!allocated[hardest])
                 {
-                    int y,x; (y,x) = targetIdx[hardest];
-                    Debug.Log((p,y,x,shortestPathTrees[p,y,x]));
+                    int y = TargetCells[hardest,0], x = TargetCells[hardest,1];
+                    // Debug.Log((p,y,x,shortestPathTrees[p,y,x]));
                     int Y = CellToCoord(y), X = CellToCoord(x);
                     Targets[Y,X] = p+1;
                     allocated[hardest] = true;
@@ -105,8 +108,8 @@ public class ProceduralBoard : Board
         {
             int I = CellToCoord(i), J = CellToCoord(j);
             return Obstacles[I,J] == 0 && 
-                Targets[I, J] == 0 && 
-                Penguins[I, J] == 0;
+                Targets[I,J] == 0 && 
+                Penguins[I,J] == 0;
         }
 
         for (int i = 0; i < nPenguins; i++)
@@ -318,7 +321,9 @@ public class ProceduralBoard : Board
                     Obstacles[Y + cY - i*cY, X + cX] = 1;
 
             // note this so we can put a target here eventually
-            targetIdx.Add((y,x));
+            TargetCells[TargetCount,0] = y;
+            TargetCells[TargetCount,1] = x;
+            TargetCount++;
             // also mark it in the Targets array with a temp '-1' for quick lookup
             Targets[Y,X] = -1;
             // update the taken array
