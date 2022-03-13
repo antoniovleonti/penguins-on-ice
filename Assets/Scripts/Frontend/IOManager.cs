@@ -107,8 +107,11 @@ public class IOManager : MonoBehaviour
         }
         // resize grid to match size of sprites
         spriteScale = obstacleSpriteArr[0].bounds.extents.x;
-        //Debug.Log("Rows:"+board.Rows+"\tCols:"+board.Columns);
+        
+        //captures camera, sets position+size for blitz mode
         cam = Camera.main;
+        cam.transform.localPosition = new Vector3(8, -7, -10);
+        cam.orthographicSize = 9;
     }
 
     // Update is called once per frame
