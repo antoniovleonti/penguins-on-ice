@@ -62,9 +62,8 @@ public class ProceduralBoard : Board
         // will be sorted according to distance
         int[][] idx = new int[nPenguins][];
         for (int i = 0; i < nPenguins; i++) idx[i] = new int[nTargets];
-        // has this target been used yet?
-        bool[] allocated = new bool[nTargets];
 
+        // this arra
         for (int p = 0; p < nPenguins; p++)
         {
             int[] dist = new int[nTargets];
@@ -78,15 +77,18 @@ public class ProceduralBoard : Board
             Array.Sort(dist,idx[p],0,nTargets,null);
         }
         // now 'draft' all targets to the robot which is furthest from it
+        bool[] allocated = new bool[nTargets]; // has this target been used yet?
         for (int p=0,n=0; n < nTargets; p=(p+1)%nPenguins,n++)
         {
-            for (int i = nTargets-1; i >= 0; i--)
+            for (int t = nTargets-1; t >= 0; t--)
             {
-                int hardest = idx[p][i];
+                // grab the most difficult target to reach for this penguin 
+                // (which isn't already assigned to another penguin)
+                int hardest = idx[p][t];
                 if (!allocated[hardest])
                 {
                     int y,x; (y,x) = targetIdx[hardest];
-                    Debug.Log(shortestPathTrees[p,y,x]);
+                    Debug.Log((p,y,x,shortestPathTrees[p,y,x]));
                     int Y = CellToCoord(y), X = CellToCoord(x);
                     Targets[Y,X] = p+1;
                     allocated[hardest] = true;
@@ -102,7 +104,9 @@ public class ProceduralBoard : Board
         bool penguinUtil(int i, int j)
         {
             int I = CellToCoord(i), J = CellToCoord(j);
-            return Targets[I, J] == 0 && Penguins[I, J] == 0;
+            return Obstacles[I,J] == 0 && 
+                Targets[I, J] == 0 && 
+                Penguins[I, J] == 0;
         }
 
         for (int i = 0; i < nPenguins; i++)
@@ -165,9 +169,26 @@ public class ProceduralBoard : Board
                     ){
                         continue; 
                     }
-                    //Debug.Log((Y,X));
                     // calculate cost of moving in this direction 
-                    int cost = dist[i,j] + (dy==dy_ && dx==dx_ ? 0 : 1);
+                    // int cost = dist[i,j] + (dy==dy_ && dx==dx_ ? 0 : 1);
+                    int cost = dist[i,j];
+                    // if we are changing directions
+                    if (dy != dy_ || dx != dx_) 
+                    {
+                        cost++;
+                        // if the penguin shouldn't naturally be able to stop here
+                        int Y_ = CellToCoord(i), X_ = CellToCoord(j);
+                        if (Obstacles[Y_+dy_,X_+dx_] == 0 && 
+                            Penguins[Y_+dy_*2,X_+dx_*2] == 0
+                        ){
+                            // it will cost at least one move to get a blocker
+                            cost++; 
+                        } 
+                    }
+                    // if we are moving through another penguin, we would have to move it
+                    if (Penguins[Y,X] != 0) cost++; 
+                    // now that we have the cost to move to this square, enqueue it.
+                    // (but only enqueue if it beat a tentative value we have already calculated)
                     if (cost < dist[i+dy, j+dx])
                     {
                         q.Enqueue((i+dy,j+dx,dy,dx), cost);
