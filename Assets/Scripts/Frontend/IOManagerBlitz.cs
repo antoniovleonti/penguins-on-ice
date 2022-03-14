@@ -14,6 +14,7 @@ public class IOManagerBlitz : MonoBehaviour
     public Texture2D PenguinFGTex; // put penguin here
     public Texture2D TargetTex; // targets here
     public Color[] penguinColors;
+    public float WallWidth = 0.1f;
 
     // these are generated programmatically from the TexArrs
     private Sprite[] obstacleSpriteArr; 
@@ -26,7 +27,7 @@ public class IOManagerBlitz : MonoBehaviour
     private float penguinFGScale; // size of sprite in world-space
     private float targetScale; // size of sprite in world-space
 
-    private BlitzRunManager blitzManager;
+    private BlitzRunManager blitz;
     private GameObject boardObject; // parent object to all board display objects
     private Grid boardGrid; // gameobject addon to make grid calculations easier
 
@@ -37,8 +38,8 @@ public class IOManagerBlitz : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        blitzManager = new BlitzRunManager();
-        blitzManager.NextBoard();
+        blitz = new BlitzRunManager();
+        blitz.NextBoard();
         // create board gameobject to be a parent to all tiles
         boardObject = new GameObject("board");
         // set its parent to the io manager
@@ -83,6 +84,8 @@ public class IOManagerBlitz : MonoBehaviour
         cam = Camera.main;
         cam.transform.localPosition = new Vector3(8, -7, -10);
         cam.orthographicSize = 9;
+
+        DrawBoard();
     }
 
     // Update is called once per frame
@@ -90,8 +93,6 @@ public class IOManagerBlitz : MonoBehaviour
     {
         // not necessary to call these every frame in practice,
         // but it can be useful for testing and experimenting
-        EraseBoard();
-        DrawBoard();
         if (Input.GetMouseButtonDown(0))
         {
             if (click1 == null)
@@ -100,35 +101,42 @@ public class IOManagerBlitz : MonoBehaviour
                 //other updates after first click
             } else
             {
-                Vector3Int temp1 = click1?? new Vector3Int(0, 0, 0);
+                Vector3Int startCell = click1 ?? new Vector3Int(0, 0, 0);
                 click2 = boardGrid.WorldToCell(cam.ScreenToWorldPoint(Input.mousePosition));
-                Vector3Int temp2 = click2?? new Vector3Int(0, 0, 0);
-                int I_click1 = Board.CellToCoord(-1 * temp1.y);
-                int J_click1 = Board.CellToCoord(temp1.x);
-                int I_click2 = Board.CellToCoord(-1 * temp2.y);
-                int J_click2 = Board.CellToCoord(temp2.x);
-                Debug.Log((I_click2, J_click2));
-                int tempI = Math.Sign(I_click2 - I_click1);
-                int tempJ = Math.Sign(J_click2 - J_click1);
-                Debug.Log((I_click1, J_click1, tempI, tempJ));
-                bool result = false;
-                try
-                {
-                    result = blitzManager.MakeMove(I_click1, J_click1, tempI, tempJ);
-                } catch{
-
-                }
+                Vector3Int endCell = click2 ?? new Vector3Int(0, 0, 0);
                 click1 = null;
                 click2 = null;
-                if (result) blitzManager.NextBoard();
+                // get the coords of the first click
+                int startI = Board.CellToCoord(-1 * startCell.y);
+                int startJ = Board.CellToCoord(startCell.x);
+                // get the coords of the second click
+                int endI = Board.CellToCoord(-1 * endCell.y);
+                int endJ = Board.CellToCoord(endCell.x);
+                // calculate the direction
+                int dy = Math.Sign(endI - startI);
+                int dx = Math.Sign(endJ - startJ);
+                
+                // try to make the move
+                bool hitTarget = false;
+                try { hitTarget = blitz.MakeMove(startI, startJ, dy, dx); } 
+                catch { }
+               
+                if (hitTarget)  // if they got to the target with the active penguin
+                {
+                    if (!blitz.NextBoard()) // if the blitz session is over 
+                    {
+                        Debug.Log("done!");
+                    }
+                }
+                DrawBoard();
             }
-
             //Debug.Log(boardGrid.WorldToCell(cam.ScreenToWorldPoint(Input.mousePosition)));
         }
     }
 
     void DrawBoard()
     {
+        EraseBoard();
         DrawBackground();
         DrawWalls();
         DrawPenguins();
@@ -138,198 +146,105 @@ public class IOManagerBlitz : MonoBehaviour
     void DrawBackground()
     {
         // add background tiles (odd indices in board.obstacles)
-        for (int i = 1; i < blitzManager.Rows; i += 2)
+        for (int i = 0; i < blitz.RowCells; i++)
         {
-            for (int j = 1; j < blitzManager.Columns; j += 2)
+            for (int j = 0; j < blitz.ColumnCells; j++)
             {
                 // set up a game object for this tile
-                GameObject tmp = new GameObject("" + i + " " + j);
-                tmp.transform.SetParent(boardObject.transform);
-                // must adjust indices to account for the fact that background
-                // tiles only exist on odd-numbered indices in array
-                var adjustedIdx = new Vector3Int((i-1)/2, -1 * (j-1)/2, 1);
-                // use grid component to calculate correct position of tile and move
-                // the tile to that position
-                tmp.transform.localPosition = boardGrid.CellToLocal(adjustedIdx) + new Vector3(0.5f, 0.5f, 0);
-                // use the iceSpriteScale to make the sprite length and width (1,1)
-                tmp.transform.localScale = tmp.transform.localScale / (obstacleScale * 2);
+                GameObject tile = new GameObject("tile @ ("+i+", "+j+")");
+                tile.transform.SetParent(boardObject.transform);
+                // position it
+                var cell = boardGrid.CellToLocal(new Vector3Int(j, -i, 1));
+                tile.transform.localPosition = cell + new Vector3(0.5f, 0.5f, 0);
+                tile.transform.localScale = tile.transform.localScale / (obstacleScale * 2);
                 
                 // now add a sprite renderer so we can see our game object
-                SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>(); 
-                // pick the right sprite based on the number in the obstacles array
-                renderer.sprite = obstacleSpriteArr[blitzManager.Obstacles[i,j]];
+                SpriteRenderer renderer = (SpriteRenderer)tile.AddComponent<SpriteRenderer>(); 
+                int I = Board.CellToCoord(i), J = Board.CellToCoord(j);
+                renderer.sprite = obstacleSpriteArr[blitz.Obstacles[I,J]];
             }
         }
     }
 
     void DrawWalls()
     {
+        var topLeft = new Vector3(-0.5f, 0.5f, 0f);
+        var topRight = new Vector3(0.5f, 0.5f, 0f);
+        var bottomLeft = new Vector3(-0.5f, -0.5f, 0f);
+        var bottomRight = new Vector3(0.5f, -0.5f, 0f);
         // add walls (even indices in board.Obstacles -- on tile edges)
-        //horizontal walls (Even Row, Odd Column)
-        for (int i = 0; i < blitzManager.RowCells; i++)
+        for (int i = 0; i < blitz.RowCells; i++)
         {
-            for (int j = 0; j < blitzManager.ColumnCells; j++)
+            for (int j = 0; j < blitz.ColumnCells; j++)
             {
                 //refer to cell
                 int I = Board.CellToCoord(i);
                 int J = Board.CellToCoord(j);
+
                 //check for horizontal wall above cell
-                if(blitzManager.Obstacles[I-1,J] == 1)
+                if(blitz.Obstacles[I-1,J] == 1)
                 {
-                    DrawAboveWall(i, j, I, J);
+                    DrawLine(i,j, topLeft, topRight, WallWidth);
                 }
                 //check for vertical wall to the left of the cell
-                if(blitzManager.Obstacles[I,J-1] == 1)
+                if(blitz.Obstacles[I,J-1] == 1)
                 {
-                    DrawLeftWall(i, j, I, J);
+                    DrawLine(i,j, topLeft, bottomLeft, WallWidth);
                 }
 
                 //exception case (End row, i = rowcells -1)
                 //check for horizontal wall below cell
-                if( i == (blitzManager.RowCells - 1))
+                if( i == (blitz.RowCells - 1) && blitz.Obstacles[I+1,J] == 1)
                 {
-                    if(blitzManager.Obstacles[I+1,J] == 1)
-                    {
-                        DrawBelowWall(i, j, I, J);
-                    }
+                    DrawLine(i,j, bottomLeft, bottomRight, WallWidth);
                 }
 
                 //exception case (End Column, j = columncells -1)
                 //check for vertical wall to the right of the cell
-                if( j == (blitzManager.ColumnCells - 1))
+                if( j == (blitz.ColumnCells - 1) && blitz.Obstacles[I,J+1] == 1)
                 {
-                    if(blitzManager.Obstacles[I,J+1] == 1)
-                    {
-                        DrawRightWall(i, j, I, J);
-                    }
+                    DrawLine(i,j, topRight, bottomRight, WallWidth);
                 }
             }
         }
     }
 
-    void DrawAboveWall(int i, int j, int I, int J)
+    void DrawLine(int i, int j, Vector3 localPosA, Vector3 localPosB, float width)
     {
-        GameObject tmp = new GameObject(""+ i + " " + j);
+        GameObject line = new GameObject("line @ ("+i+", "+j+")");
 
-
-        tmp.transform.SetParent(boardObject.transform);
-        tmp.transform.localScale = tmp.transform.localScale / (obstacleScale * 2);
-
-        //create new Linerenderer, set texture and width
-        LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
-        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[0]);
-        float width  = 0.1f;
-        renderer.startWidth = width;
-        renderer.endWidth = width;
-
-        //1,1   -1,3    1,3
-        //1,3    1,3    3,3
-        //3,1   -1,1    1,1
-        //3,3    1,1    3,1
-        //Debug.Log("i:"+i+"\tj:"+j);
-        //Debug.Log("I:"+I+"\tJ:"+J);
-        //Debug.Log("("+(J-2)+","+(board.Columns - (I+1))+")");
-        //Debug.Log("("+J+","+(board.Columns - (I+1))+")");
-
-        //assign first and second index to draw line
-        var centerOfCell = new Vector3(j + 0.5f, (-1 * i) + 0.5f, -2);
-        var topLeftCorner = centerOfCell + new Vector3(-0.5f, 0.5f, 0);
-        var topRightCorner = centerOfCell + new Vector3(0.5f, 0.5f, 0);
-        renderer.SetPosition(0, topLeftCorner);
-        renderer.SetPosition(1, topRightCorner);
-    }
-    void DrawLeftWall(int i, int j, int I, int J)
-    {
-        GameObject tmp = new GameObject(""+ i + " " + j);
-
-
-        tmp.transform.SetParent(boardObject.transform);
-        tmp.transform.localScale = tmp.transform.localScale / obstacleScale;
-
-        //create new Linerenderer, set texture and width
-        LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
-        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[0]);
-        float width  = 0.1f;
-        renderer.startWidth = width;
-        renderer.endWidth = width;
+        // set up gameobject in hierarchy 
+        var cell = new Vector3Int(j, -i, 1);
+        line.transform.SetParent(boardObject.transform);
+        //line.transform.localScale = line.transform.localScale / 4;
+        line.transform.localPosition = boardGrid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, -1);
         
-        //1,1   -1,1   -1,3
-        //1,3    1,1    1,3
-        //3,1   -1,-1  -1,1
-        //3,3    1,-1   1,1
-        //assign first and second index to draw line
-        var centerOfCell = new Vector3(j + 0.5f, (-1 * i) + 0.5f, -2);
-        var topLeftCorner = centerOfCell + new Vector3(-0.5f, 0.5f, 0);
-        var botLeftCorner = centerOfCell + new Vector3(-0.5f, -0.5f, 0);
-        renderer.SetPosition(0, topLeftCorner);
-        renderer.SetPosition(1, botLeftCorner);
-    }
-    void DrawBelowWall(int i, int j, int I, int J)
-    {
-        //create new object for the wall, set parent to boardObject and scale to 1
-        GameObject tmp = new GameObject(""+ i + " " + j);
-
-
-        tmp.transform.SetParent(boardObject.transform);
-        tmp.transform.localScale = tmp.transform.localScale / obstacleScale;
-
         //create new Linerenderer, set texture and width
-        LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
-        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[0]);
-        float width  = 0.1f;
+        LineRenderer renderer = (LineRenderer)line.AddComponent<LineRenderer>();
+        renderer.useWorldSpace = false; // draw line relative to GO position
+        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[1]);
         renderer.startWidth = width;
         renderer.endWidth = width;
-        
-        //3,1  -1,-1    1,-1
-        //3,3   1,-1    3,-1
-        //assign first and second index to draw line
-        var centerOfCell = new Vector3(j + 0.5f, (-1 * i) + 0.5f, -2);
-        var botRightCorner = centerOfCell + new Vector3(0.5f, -0.5f, 0);
-        var botLeftCorner = centerOfCell + new Vector3(-0.5f, -0.5f, 0);
-        renderer.SetPosition(0, botRightCorner);
-        renderer.SetPosition(1, botLeftCorner);
+
+        // add these verts to renderer
+        //renderer.SetPositions(new Vector3[]{localPosA, localPosB});
+        renderer.SetPosition(0, localPosA);
+        renderer.SetPosition(1, localPosB);
     }
-    void DrawRightWall(int i, int j, int I, int J)
-    {
-        GameObject tmp = new GameObject(""+ i + " " + j);
 
-
-        tmp.transform.SetParent(boardObject.transform);
-        tmp.transform.localScale = tmp.transform.localScale / obstacleScale;
-
-        //create new Linerenderer, set texture and width
-        LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
-        renderer.material.SetTexture("_MainTex", (Texture)ObstacleTexArr[0]);
-        float width  = 0.1f;
-        renderer.startWidth = width;
-        renderer.endWidth = width;
-        
-        //1,3  3,1    3,3
-        //3,3  3,-1   3,1
-        //assign first and second index to draw line
-        //Debug.Log("i:"+i+"\tj:"+j);
-        //Debug.Log("I:"+I+"\tJ:"+J);
-        var centerOfCell = new Vector3(j + 0.5f, (-1 * i) + 0.5f, -2);
-        var botRightCorner = centerOfCell + new Vector3(0.5f, -0.5f, 0);
-        var topRightCorner = centerOfCell + new Vector3(0.5f, 0.5f, 0);
-        renderer.SetPosition(0, topRightCorner);
-        renderer.SetPosition(1, botRightCorner);
-    }
-    
     void DrawPenguins()
     {
-        for (int i = 0; i < blitzManager.RowCells; i++)
+        for (int i = 0; i < blitz.RowCells; i++)
         {
-            for (int j = 0; j < blitzManager.ColumnCells; j++)
+            for (int j = 0; j < blitz.ColumnCells; j++)
             {
                 int I = Board.CellToCoord(i); // "real" positions on board
                 int J = Board.CellToCoord(j);
 
                 // only do anything if there's a penguin here
-                if (blitzManager.Penguins[I,J] == 0) {continue;}
+                if (blitz.Penguins[I,J] == 0) {continue;}
 
-                //Debug.Log("I:"+I+"\tJ:"+J);
-                GameObject penguin = new GameObject("" + i + " " + j); // create the gameobject
+                GameObject penguin = new GameObject("penguin @ ("+i+", "+j+")"); // create the gameobject
                 penguin.transform.SetParent(boardObject.transform);
 
                 var cell = new Vector3Int(j, -i, -1);
@@ -343,7 +258,7 @@ public class IOManagerBlitz : MonoBehaviour
 
                 SpriteRenderer bgRenderer = (SpriteRenderer)bg.AddComponent<SpriteRenderer>();
                 bgRenderer.sprite = penguinBGSprite;
-                bgRenderer.color = penguinColors[blitzManager.Penguins[I,J]-1];
+                bgRenderer.color = penguinColors[blitz.Penguins[I,J]-1];
 
                 GameObject fg = new GameObject("fg");
                 fg.transform.SetParent(penguin.transform);
@@ -359,14 +274,14 @@ public class IOManagerBlitz : MonoBehaviour
 
     void DrawTargets()
     {
-        for (int i = 0; i < blitzManager.RowCells; i++)
+        for (int i = 0; i < blitz.RowCells; i++)
         {
-            for (int j = 0; j < blitzManager.ColumnCells; j++)
+            for (int j = 0; j < blitz.ColumnCells; j++)
             {
                 int I = Board.CellToCoord(i);
                 int J = Board.CellToCoord(j);
 
-                if (blitzManager.Targets[I,J] == 0) {continue;}
+                if (blitz.Targets[I,J] == 0) {continue;}
                 //Debug.Log("I:"+I+"\tJ:"+J);
                 GameObject tmp = new GameObject("" + i + " " + j);
                 tmp.transform.SetParent(boardObject.transform);
@@ -377,7 +292,7 @@ public class IOManagerBlitz : MonoBehaviour
 
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
                 renderer.sprite = targetSprite;
-                renderer.color = penguinColors[blitzManager.Targets[I,J] - 1];
+                renderer.color = penguinColors[blitz.Targets[I,J] - 1];
             }
         }
     }

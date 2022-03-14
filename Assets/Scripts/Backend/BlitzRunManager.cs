@@ -35,8 +35,9 @@ public class BlitzRunManager
         Array.Copy(baseBoard.TargetCells, targetCells, 2*baseBoard.TargetCount);
         Shuffle(targetCells);
     }
-    public void NextBoard()
+    public bool NextBoard()
     {
+        if (targetIdx == baseBoard.TargetCount) return false;
         int[,] targetsMap = new int[33,33];
 
         int i = targetCells[targetIdx,0], j = targetCells[targetIdx,1];
@@ -46,6 +47,7 @@ public class BlitzRunManager
         targetIdx++;
 
         activeBoard = new Board(baseBoard.Obstacles, baseBoard.Penguins, targetsMap);
+        return true;
     }
     public bool MakeMove(int startRow, int startCol, int dRow, int dCol)
     {

@@ -155,14 +155,15 @@ MonoBehaviour:
   ObstacleTexArr:
   - {fileID: 2800000, guid: d57f8ddf7afb84bdfbc608a4515bf630, type: 3}
   - {fileID: 2800000, guid: 3399d04de591a4f13857be2afe70177c, type: 3}
-  PenguinBGTex: {fileID: 2800000, guid: 95162aa34b9a44ca1ac0864e9df5e52e, type: 3}
-  PenguinFGTex: {fileID: 2800000, guid: c3df2557ec15d43ab84eab552f9ed497, type: 3}
+  PenguinBGTex: {fileID: 2800000, guid: 0f734a2e17b434f159afcc0bf3a78d8c, type: 3}
+  PenguinFGTex: {fileID: 2800000, guid: 4ad52b49be97541bd8fe8c75bfd44b26, type: 3}
   TargetTex: {fileID: 2800000, guid: cc35afd292fc349128b36a291fb3a165, type: 3}
   penguinColors:
-  - {r: 1, g: 0, b: 0.34208536, a: 0}
-  - {r: 0.52005863, g: 0, b: 1, a: 0}
-  - {r: 0, g: 1, b: 0.37131238, a: 0}
-  - {r: 1, g: 0.8422947, b: 0, a: 0}
+  - {r: 0.6415094, g: 0, b: 0.21886794, a: 1}
+  - {r: 0.41331863, g: 0, b: 0.7924528, a: 1}
+  - {r: 0, g: 0.5849056, b: 0.21790604, a: 1}
+  - {r: 0.735849, g: 0.54919446, b: 0, a: 1}
+  WallWidth: 0.1
 --- !u!4 &1024034486
 Transform:
   m_ObjectHideFlags: 0
