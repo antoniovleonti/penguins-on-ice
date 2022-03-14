@@ -10,17 +10,20 @@ public class IOManagerBlitz : MonoBehaviour
     // we expect to see. ex. first obstacleTexArr element
     // should be the background ice texture.
     public Texture2D[] ObstacleTexArr; // put obstacle textures here
-    public Texture2D PenguinTex; // put penguin here
+    public Texture2D PenguinBGTex; // put penguin here
+    public Texture2D PenguinFGTex; // put penguin here
     public Texture2D TargetTex; // targets here
     public Color[] penguinColors;
 
     // these are generated programmatically from the TexArrs
     private Sprite[] obstacleSpriteArr; 
-    private Sprite penguinSprite;
+    private Sprite penguinFGSprite;
+    private Sprite penguinBGSprite;
     private Sprite targetSprite;
 
     private float obstacleScale; // size of sprite in world-space
-    private float penguinScale; // size of sprite in world-space
+    private float penguinBGScale; // size of sprite in world-space
+    private float penguinFGScale; // size of sprite in world-space
     private float targetScale; // size of sprite in world-space
 
     private BlitzRunManager blitzManager;
@@ -54,10 +57,15 @@ public class IOManagerBlitz : MonoBehaviour
                 new Vector2(0.5f, 0.5f), 100.0f ); 
         }
 
-        penguinColors = new Color[]{Color.red, Color.blue, Color.green, Color.yellow};
+        //penguinColors = new Color[]{Color.red, Color.blue, Color.green, Color.yellow};
         // ^ do the same for penguins and targets down here
-        penguinSprite = Sprite.Create(
-            PenguinTex, new Rect(0.0f, 0.0f, PenguinTex.width, PenguinTex.height), 
+        penguinFGSprite = Sprite.Create(
+            PenguinFGTex, new Rect(0.0f, 0.0f, PenguinFGTex.width, PenguinFGTex.height), 
+            new Vector2(0.5f, 0.5f), 100.0f ); 
+
+        // ^ do the same for penguins and targets down here
+        penguinBGSprite = Sprite.Create(
+            PenguinBGTex, new Rect(0.0f, 0.0f, PenguinBGTex.width, PenguinBGTex.height), 
             new Vector2(0.5f, 0.5f), 100.0f ); 
 
         targetSprite = Sprite.Create(
@@ -66,7 +74,8 @@ public class IOManagerBlitz : MonoBehaviour
 
         // resize grid to match size of sprites
         obstacleScale = obstacleSpriteArr[0].bounds.extents.x;
-        penguinScale = penguinSprite.bounds.extents.x;
+        penguinFGScale = penguinFGSprite.bounds.extents.x;
+        penguinBGScale = penguinBGSprite.bounds.extents.x;
         targetScale = targetSprite.bounds.extents.x;
 
         
@@ -318,19 +327,32 @@ public class IOManagerBlitz : MonoBehaviour
 
                 // only do anything if there's a penguin here
                 if (blitzManager.Penguins[I,J] == 0) {continue;}
+
                 //Debug.Log("I:"+I+"\tJ:"+J);
-                GameObject tmp = new GameObject("" + i + " " + j); // create the gameobject
-                tmp.transform.SetParent(boardObject.transform);
+                GameObject penguin = new GameObject("" + i + " " + j); // create the gameobject
+                penguin.transform.SetParent(boardObject.transform);
 
                 var cell = new Vector3Int(j, -i, -1);
-                tmp.transform.localPosition = boardGrid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, 0);
-                tmp.transform.localScale = tmp.transform.localScale / (penguinScale * 2);
-                tmp.transform.localScale = tmp.transform.localScale * 0.9f; // make penguins a little smaller
+                penguin.transform.localPosition = boardGrid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, 0);
+                //penguin.transform.localScale = penguin.transform.localScale * 0.9f; // make penguins a little smaller
 
-                SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
-                renderer.sprite = penguinSprite;
+                GameObject bg = new GameObject("bg");
+                bg.transform.SetParent(penguin.transform);
+                bg.transform.localPosition = new Vector3(0,0,-1);
+                bg.transform.localScale = bg.transform.localScale / (penguinBGScale * 2);
+
+                SpriteRenderer bgRenderer = (SpriteRenderer)bg.AddComponent<SpriteRenderer>();
+                bgRenderer.sprite = penguinBGSprite;
+                bgRenderer.color = penguinColors[blitzManager.Penguins[I,J]-1];
+
+                GameObject fg = new GameObject("fg");
+                fg.transform.SetParent(penguin.transform);
+                fg.transform.localPosition = new Vector3(0,0,-2);
+                fg.transform.localScale = fg.transform.localScale / (penguinFGScale * 2);
+
+                SpriteRenderer fgRenderer = (SpriteRenderer)fg.AddComponent<SpriteRenderer>();
+                fgRenderer.sprite = penguinFGSprite;
                 // recolor penguin according to ID
-                renderer.color = penguinColors[blitzManager.Penguins[I,J]-1];
             }
         }
     }
