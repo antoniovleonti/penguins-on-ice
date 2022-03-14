@@ -29,7 +29,7 @@ public class IOManager : MonoBehaviour
     private Vector3Int? click1;
     private Vector3Int? click2;
 
-    GameObject popupWindow;
+    GameObject popupWindow, diagonalWarning;
 
     // Start is called before the first frame update
     void Start()
@@ -82,6 +82,9 @@ public class IOManager : MonoBehaviour
         popupWindow = GameObject.Find("PopupMessage");
         popupWindow.SetActive(true);
         popupWindow.GetComponent<RectTransform>().localScale = new Vector3(2, 2, 1);
+        
+        diagonalWarning = GameObject.Find("DiagonalWarning");
+        diagonalWarning.SetActive(false);
     }
 
     // Update is called once per frame
@@ -98,6 +101,7 @@ public class IOManager : MonoBehaviour
                 click1 = boardGrid.WorldToCell(cam.ScreenToWorldPoint(Input.mousePosition));
                 //other updates after first click
                 popupWindow.SetActive(false);
+                diagonalWarning.SetActive(false);
             } else
             {
                 Vector3Int temp1 = click1?? new Vector3Int(0, 0, 0);
@@ -114,8 +118,12 @@ public class IOManager : MonoBehaviour
                 try
                 {
                     board.make_move(I_click1, J_click1, tempI, tempJ);
-                } catch{
-
+                } catch (Exception ex)
+                {
+                    if (ex is MoveNotValidException){
+                        Debug.Log("WARNING!!!");
+                        diagonalWarning.SetActive(true);
+                    }
                 }
                 click1 = null;
                 click2 = null;
