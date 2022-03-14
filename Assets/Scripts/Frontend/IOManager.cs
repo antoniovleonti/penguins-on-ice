@@ -10,14 +10,13 @@ public class IOManager : MonoBehaviour
     // we expect to see. ex. first obstacleTexArr element
     // should be the background ice texture.
     public Texture2D[] ObstacleTexArr; // put obstacle textures here
-    public Texture2D PenguinTex; // put penguin here
-    public Texture2D TargetTex; // targets here
-    private Color[] penguinColors;
+    public Texture2D[] PenguinTexArr; // put penguins here
+    public Texture2D[] TargetTexArr; // targets here
 
     // these are generated programmatically from the TexArrs
     private Sprite[] obstacleSpriteArr; 
-    private Sprite penguinSprite;
-    private Sprite targetSprite;
+    private Sprite[] penguinSpriteArr;
+    private Sprite[] targetSpriteArr;
 
     private float spriteScale; // size of sprite in world-space
 
@@ -32,6 +31,34 @@ public class IOManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // create a new board
+        int[,] obstacles = {
+            {1,1,1,1,1,1,1,},
+            {1,0,1,0,0,0,1,},
+            {1,0,0,0,0,0,1,},
+            {1,0,1,0,1,0,1,},
+            {1,0,0,1,0,0,1,},
+            {1,0,0,0,0,0,1,},
+            {1,1,1,1,1,1,1,},
+        };
+        int[,] penguins = {
+            {0,0,0,0,0,0,0,},
+            {0,1,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+        };
+        int[,] targets = {
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,0,0,},
+            {0,0,0,0,0,1,0,},
+            {0,0,0,0,0,0,0,},
+        };
         //board = new Board(obstacles, penguins, targets);
         ProceduralBoard pb = null;
         while (pb == null)
@@ -58,17 +85,26 @@ public class IOManager : MonoBehaviour
                 tex, new Rect(0.0f, 0.0f, tex.width, tex.height), 
                 new Vector2(0.5f, 0.5f), 100.0f ); 
         }
-
-        penguinColors = new Color[]{Color.red, Color.blue, Color.green, Color.yellow};
         // ^ do the same for penguins and targets down here
-        penguinSprite = Sprite.Create(
-            PenguinTex, new Rect(0.0f, 0.0f, PenguinTex.width, PenguinTex.height), 
-            new Vector2(0.5f, 0.5f), 100.0f ); 
+        nTextures = PenguinTexArr.GetLength(0);
+        penguinSpriteArr = new Sprite[nTextures];
+        for (int i = 0; i < nTextures; i++)
+        {
+            Texture2D tex = PenguinTexArr[i];
+            penguinSpriteArr[i] = Sprite.Create(
+                tex, new Rect(0.0f, 0.0f, tex.width, tex.height), 
+                new Vector2(0.5f, 0.5f), 100.0f ); 
+        }
 
-        targetSprite = Sprite.Create(
-            TargetTex, new Rect(0.0f, 0.0f, TargetTex.width, TargetTex.height), 
-            new Vector2(0.5f, 0.5f), 100.0f ); 
-
+        nTextures = TargetTexArr.GetLength(0);
+        targetSpriteArr = new Sprite[nTextures];
+        for (int i = 0; i < nTextures; i++)
+        {
+            Texture2D tex = TargetTexArr[i];
+            targetSpriteArr[i] = Sprite.Create(
+                tex, new Rect(0.0f, 0.0f, tex.width, tex.height), 
+                new Vector2(0.5f, 0.5f), 100.0f ); 
+        }
         // resize grid to match size of sprites
         spriteScale = obstacleSpriteArr[0].bounds.extents.x;
         
@@ -313,24 +349,22 @@ public class IOManager : MonoBehaviour
         {
             for (int j = 0; j < board.ColumnCells; j++)
             {
-                int I = Board.CellToCoord(i); // "real" positions on board
+                int I = Board.CellToCoord(i);
                 int J = Board.CellToCoord(j);
 
-                // only do anything if there's a penguin here
+
                 if (board.Penguins[I,J] == 0) {continue;}
                 //Debug.Log("I:"+I+"\tJ:"+J);
-                GameObject tmp = new GameObject("" + i + " " + j); // create the gameobject
+                GameObject tmp = new GameObject("" + i + " " + j);
                 tmp.transform.SetParent(boardObject.transform);
 
-                var cell = new Vector3Int(j, -i, -1);
-                tmp.transform.localPosition = boardGrid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, 0);
+                var adjustedIdx = new Vector3Int(j, -i, -1);
+                tmp.transform.localPosition = boardGrid.CellToLocal(adjustedIdx) + new Vector3(0.5f, 0.5f, 0);
                 tmp.transform.localScale = tmp.transform.localScale / (spriteScale * 2);
-                tmp.transform.localScale = tmp.transform.localScale * 0.9f; // make penguins a little smaller
+                tmp.transform.localScale = tmp.transform.localScale * 0.9f;
 
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
-                renderer.sprite = penguinSprite;
-                // recolor penguin according to ID
-                renderer.color = penguinColors[board.Penguins[I,J]-1];
+                renderer.sprite = penguinSpriteArr[board.Penguins[I,J] - 1];
             }
         }
     }
@@ -355,8 +389,7 @@ public class IOManager : MonoBehaviour
                 tmp.transform.localScale = tmp.transform.localScale * 0.9f;
 
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
-                renderer.sprite = targetSprite;
-                renderer.color = penguinColors[board.Targets[I,J] - 1];
+                renderer.sprite = targetSpriteArr[board.Targets[I,J] - 1];
             }
         }
     }
