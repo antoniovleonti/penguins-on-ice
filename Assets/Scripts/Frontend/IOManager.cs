@@ -351,8 +351,7 @@ public class IOManager : MonoBehaviour
 
                 var adjustedIdx = new Vector3Int(j, -i, -1);
                 tmp.transform.localPosition = boardGrid.CellToLocal(adjustedIdx) + new Vector3(0.5f, 0.5f, 0);
-                tmp.transform.localScale = tmp.transform.localScale / (spriteScale * 2);
-                tmp.transform.localScale = tmp.transform.localScale * 0.9f;
+                tmp.transform.localScale = tmp.transform.localScale / (spriteScale * 2) * 0.9f;
 
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
                 renderer.sprite = targetSprite;
