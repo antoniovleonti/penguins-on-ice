@@ -49,28 +49,28 @@ public class Board
             0 <= col && col < ColumnCells;
     }
 
-    public bool make_move(int start_row, int start_col, int d_row, int d_col)
+    public bool MakeMove(int startRow, int startCol, int dRow, int dCol)
     {
         // validate input
-        if (!CoordIsInBounds(start_row, start_col))
-            throw new IndexOutOfRangeException("(start_row, start_col) not a valid coordinate.");
+        if (!CoordIsInBounds(startRow, startCol))
+            throw new IndexOutOfRangeException("(startRow, startCol) not a valid coordinate.");
 
-        if (!(Math.Abs(d_row) + Math.Abs(d_col) == 1))
-            throw new ArgumentException("Either d_row XOR d_col must be in {-1,1}; other must == 0.");
+        if (!(Math.Abs(dRow) + Math.Abs(dCol) == 1))
+            throw new ArgumentException("Either dRow XOR dCol must be in {-1,1}; other must == 0.");
 
-        if (!(Penguins[start_row,start_col] > 0))
-            throw new ArgumentException("(start_row, start_col) must point to a penguin.");
+        if (!(Penguins[startRow,startCol] > 0))
+            throw new ArgumentException("(startRow, startCol) must point to a penguin.");
 
         // start moving penguin
-        int active_penguin = Penguins[start_row,start_col];
-        int new_row = start_row, new_col = start_col;
+        int active_penguin = Penguins[startRow,startCol];
+        int new_row = startRow, new_col = startCol;
         // step penguin until next obstacle or penguin is found
-        while ( CoordIsInBounds(new_row + d_row * 2, new_col + d_col * 2) &&
-                Penguins[new_row + d_row * 2,new_col + d_col * 2] == 0 &&
-                Obstacles[new_row + d_row,new_col + d_col] == 0
+        while ( CoordIsInBounds(new_row + dRow * 2, new_col + dCol * 2) &&
+                Penguins[new_row + dRow * 2,new_col + dCol * 2] == 0 &&
+                Obstacles[new_row + dRow,new_col + dCol] == 0
         ){
-            new_row += d_row * 2;
-            new_col += d_col * 2;
+            new_row += dRow * 2;
+            new_col += dCol * 2;
             
             if (Targets[new_row,new_col] == active_penguin)
             {
@@ -78,9 +78,9 @@ public class Board
             }
         }
         // actually make the move if the penguin moved anywhere
-        if (start_row != new_row || start_col != new_col)
+        if (startRow != new_row || startCol != new_col)
         {
-            Penguins[start_row,start_col] = 0;
+            Penguins[startRow,startCol] = 0;
             Penguins[new_row,new_col] = active_penguin;
         }
         // return answers question "was this a win?"

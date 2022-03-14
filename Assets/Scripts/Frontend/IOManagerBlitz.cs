@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IOManager : MonoBehaviour
+public class IOManagerBlitz : MonoBehaviour
 {
     // you can edit these arrays from the unity editor
     // put textures in here that correspond to the values
@@ -21,7 +21,7 @@ public class IOManager : MonoBehaviour
 
     private float spriteScale; // size of sprite in world-space
 
-    private Board board; // backend board we are displaying
+    private BlitzRunManager blitzManager;
     private GameObject boardObject; // parent object to all board display objects
     private Grid boardGrid; // gameobject addon to make grid calculations easier
 
@@ -32,15 +32,8 @@ public class IOManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //board = new Board(obstacles, penguins, targets);
-        ProceduralBoard pb = null;
-        while (pb == null)
-        {
-            try { pb = new ProceduralBoard(4); }
-            catch (System.Exception) {}
-        }
-        board = pb;
-
+        blitzManager = new BlitzRunManager();
+        blitzManager.NextBoard();
         // create board gameobject to be a parent to all tiles
         boardObject = new GameObject("board");
         // set its parent to the io manager
@@ -104,14 +97,16 @@ public class IOManager : MonoBehaviour
                 int tempI = Math.Sign(I_click2 - I_click1);
                 int tempJ = Math.Sign(J_click2 - J_click1);
                 Debug.Log((I_click1, J_click1, tempI, tempJ));
+                bool result = false;
                 try
                 {
-                    board.MakeMove(I_click1, J_click1, tempI, tempJ);
+                    result = blitzManager.MakeMove(I_click1, J_click1, tempI, tempJ);
                 } catch{
 
                 }
                 click1 = null;
                 click2 = null;
+                if (result) blitzManager.NextBoard();
             }
 
             //Debug.Log(boardGrid.WorldToCell(cam.ScreenToWorldPoint(Input.mousePosition)));
@@ -129,9 +124,9 @@ public class IOManager : MonoBehaviour
     void DrawBackground()
     {
         // add background tiles (odd indices in board.obstacles)
-        for (int i = 1; i < board.Rows; i += 2)
+        for (int i = 1; i < blitzManager.Rows; i += 2)
         {
-            for (int j = 1; j < board.Columns; j += 2)
+            for (int j = 1; j < blitzManager.Columns; j += 2)
             {
                 // set up a game object for this tile
                 GameObject tmp = new GameObject("" + i + " " + j);
@@ -148,7 +143,7 @@ public class IOManager : MonoBehaviour
                 // now add a sprite renderer so we can see our game object
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>(); 
                 // pick the right sprite based on the number in the obstacles array
-                renderer.sprite = obstacleSpriteArr[board.Obstacles[i,j]];
+                renderer.sprite = obstacleSpriteArr[blitzManager.Obstacles[i,j]];
             }
         }
     }
@@ -157,29 +152,29 @@ public class IOManager : MonoBehaviour
     {
         // add walls (even indices in board.Obstacles -- on tile edges)
         //horizontal walls (Even Row, Odd Column)
-        for (int i = 0; i < board.RowCells; i++)
+        for (int i = 0; i < blitzManager.RowCells; i++)
         {
-            for (int j = 0; j < board.ColumnCells; j++)
+            for (int j = 0; j < blitzManager.ColumnCells; j++)
             {
                 //refer to cell
                 int I = Board.CellToCoord(i);
                 int J = Board.CellToCoord(j);
                 //check for horizontal wall above cell
-                if(board.Obstacles[I-1,J] == 1)
+                if(blitzManager.Obstacles[I-1,J] == 1)
                 {
                     DrawAboveWall(i, j, I, J);
                 }
                 //check for vertical wall to the left of the cell
-                if(board.Obstacles[I,J-1] == 1)
+                if(blitzManager.Obstacles[I,J-1] == 1)
                 {
                     DrawLeftWall(i, j, I, J);
                 }
 
                 //exception case (End row, i = rowcells -1)
                 //check for horizontal wall below cell
-                if( i == (board.RowCells - 1))
+                if( i == (blitzManager.RowCells - 1))
                 {
-                    if(board.Obstacles[I+1,J] == 1)
+                    if(blitzManager.Obstacles[I+1,J] == 1)
                     {
                         DrawBelowWall(i, j, I, J);
                     }
@@ -187,9 +182,9 @@ public class IOManager : MonoBehaviour
 
                 //exception case (End Column, j = columncells -1)
                 //check for vertical wall to the right of the cell
-                if( j == (board.ColumnCells - 1))
+                if( j == (blitzManager.ColumnCells - 1))
                 {
-                    if(board.Obstacles[I,J+1] == 1)
+                    if(blitzManager.Obstacles[I,J+1] == 1)
                     {
                         DrawRightWall(i, j, I, J);
                     }
@@ -309,15 +304,15 @@ public class IOManager : MonoBehaviour
     
     void DrawPenguins()
     {
-        for (int i = 0; i < board.RowCells; i++)
+        for (int i = 0; i < blitzManager.RowCells; i++)
         {
-            for (int j = 0; j < board.ColumnCells; j++)
+            for (int j = 0; j < blitzManager.ColumnCells; j++)
             {
                 int I = Board.CellToCoord(i); // "real" positions on board
                 int J = Board.CellToCoord(j);
 
                 // only do anything if there's a penguin here
-                if (board.Penguins[I,J] == 0) {continue;}
+                if (blitzManager.Penguins[I,J] == 0) {continue;}
                 //Debug.Log("I:"+I+"\tJ:"+J);
                 GameObject tmp = new GameObject("" + i + " " + j); // create the gameobject
                 tmp.transform.SetParent(boardObject.transform);
@@ -330,21 +325,21 @@ public class IOManager : MonoBehaviour
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
                 renderer.sprite = penguinSprite;
                 // recolor penguin according to ID
-                renderer.color = penguinColors[board.Penguins[I,J]-1];
+                renderer.color = penguinColors[blitzManager.Penguins[I,J]-1];
             }
         }
     }
 
     void DrawTargets()
     {
-        for (int i = 0; i < board.RowCells; i++)
+        for (int i = 0; i < blitzManager.RowCells; i++)
         {
-            for (int j = 0; j < board.ColumnCells; j++)
+            for (int j = 0; j < blitzManager.ColumnCells; j++)
             {
                 int I = Board.CellToCoord(i);
                 int J = Board.CellToCoord(j);
 
-                if (board.Targets[I,J] == 0) {continue;}
+                if (blitzManager.Targets[I,J] == 0) {continue;}
                 //Debug.Log("I:"+I+"\tJ:"+J);
                 GameObject tmp = new GameObject("" + i + " " + j);
                 tmp.transform.SetParent(boardObject.transform);
@@ -355,7 +350,7 @@ public class IOManager : MonoBehaviour
 
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
                 renderer.sprite = targetSprite;
-                renderer.color = penguinColors[board.Targets[I,J] - 1];
+                renderer.color = penguinColors[blitzManager.Targets[I,J] - 1];
             }
         }
     }
