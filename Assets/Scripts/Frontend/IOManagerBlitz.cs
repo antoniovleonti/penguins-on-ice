@@ -12,7 +12,7 @@ public class IOManagerBlitz : MonoBehaviour
     public Texture2D[] ObstacleTexArr; // put obstacle textures here
     public Texture2D PenguinTex; // put penguin here
     public Texture2D TargetTex; // targets here
-    private Color[] penguinColors;
+    public Color[] penguinColors;
 
     // these are generated programmatically from the TexArrs
     private Sprite[] obstacleSpriteArr; 
