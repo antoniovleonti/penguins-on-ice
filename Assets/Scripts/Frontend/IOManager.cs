@@ -29,6 +29,8 @@ public class IOManager : MonoBehaviour
     private Vector3Int? click1;
     private Vector3Int? click2;
 
+    GameObject popupWindow;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -76,6 +78,10 @@ public class IOManager : MonoBehaviour
         cam = Camera.main;
         cam.transform.localPosition = new Vector3(8, -7, -10);
         cam.orthographicSize = 9;
+
+        popupWindow = GameObject.Find("PopupMessage");
+        popupWindow.SetActive(true);
+        popupWindow.GetComponent<RectTransform>().localScale = new Vector3(2, 2, 1);
     }
 
     // Update is called once per frame
@@ -91,6 +97,7 @@ public class IOManager : MonoBehaviour
             {
                 click1 = boardGrid.WorldToCell(cam.ScreenToWorldPoint(Input.mousePosition));
                 //other updates after first click
+                popupWindow.SetActive(false);
             } else
             {
                 Vector3Int temp1 = click1?? new Vector3Int(0, 0, 0);
