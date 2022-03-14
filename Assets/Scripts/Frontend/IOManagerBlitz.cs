@@ -19,7 +19,9 @@ public class IOManagerBlitz : MonoBehaviour
     private Sprite penguinSprite;
     private Sprite targetSprite;
 
-    private float spriteScale; // size of sprite in world-space
+    private float obstacleScale; // size of sprite in world-space
+    private float penguinScale; // size of sprite in world-space
+    private float targetScale; // size of sprite in world-space
 
     private BlitzRunManager blitzManager;
     private GameObject boardObject; // parent object to all board display objects
@@ -63,7 +65,10 @@ public class IOManagerBlitz : MonoBehaviour
             new Vector2(0.5f, 0.5f), 100.0f ); 
 
         // resize grid to match size of sprites
-        spriteScale = obstacleSpriteArr[0].bounds.extents.x;
+        obstacleScale = obstacleSpriteArr[0].bounds.extents.x;
+        penguinScale = penguinSprite.bounds.extents.x;
+        targetScale = targetSprite.bounds.extents.x;
+
         
         //captures camera, sets position+size for blitz mode
         cam = Camera.main;
@@ -138,7 +143,7 @@ public class IOManagerBlitz : MonoBehaviour
                 // the tile to that position
                 tmp.transform.localPosition = boardGrid.CellToLocal(adjustedIdx) + new Vector3(0.5f, 0.5f, 0);
                 // use the iceSpriteScale to make the sprite length and width (1,1)
-                tmp.transform.localScale = tmp.transform.localScale / (spriteScale * 2);
+                tmp.transform.localScale = tmp.transform.localScale / (obstacleScale * 2);
                 
                 // now add a sprite renderer so we can see our game object
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>(); 
@@ -199,7 +204,7 @@ public class IOManagerBlitz : MonoBehaviour
 
 
         tmp.transform.SetParent(boardObject.transform);
-        tmp.transform.localScale = tmp.transform.localScale / (spriteScale * 2);
+        tmp.transform.localScale = tmp.transform.localScale / (obstacleScale * 2);
 
         //create new Linerenderer, set texture and width
         LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
@@ -230,7 +235,7 @@ public class IOManagerBlitz : MonoBehaviour
 
 
         tmp.transform.SetParent(boardObject.transform);
-        tmp.transform.localScale = tmp.transform.localScale / spriteScale;
+        tmp.transform.localScale = tmp.transform.localScale / obstacleScale;
 
         //create new Linerenderer, set texture and width
         LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
@@ -257,7 +262,7 @@ public class IOManagerBlitz : MonoBehaviour
 
 
         tmp.transform.SetParent(boardObject.transform);
-        tmp.transform.localScale = tmp.transform.localScale / spriteScale;
+        tmp.transform.localScale = tmp.transform.localScale / obstacleScale;
 
         //create new Linerenderer, set texture and width
         LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
@@ -281,7 +286,7 @@ public class IOManagerBlitz : MonoBehaviour
 
 
         tmp.transform.SetParent(boardObject.transform);
-        tmp.transform.localScale = tmp.transform.localScale / spriteScale;
+        tmp.transform.localScale = tmp.transform.localScale / obstacleScale;
 
         //create new Linerenderer, set texture and width
         LineRenderer renderer = (LineRenderer)tmp.AddComponent<LineRenderer>();
@@ -319,7 +324,7 @@ public class IOManagerBlitz : MonoBehaviour
 
                 var cell = new Vector3Int(j, -i, -1);
                 tmp.transform.localPosition = boardGrid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, 0);
-                tmp.transform.localScale = tmp.transform.localScale / (spriteScale * 2);
+                tmp.transform.localScale = tmp.transform.localScale / (penguinScale * 2);
                 tmp.transform.localScale = tmp.transform.localScale * 0.9f; // make penguins a little smaller
 
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
@@ -346,7 +351,7 @@ public class IOManagerBlitz : MonoBehaviour
 
                 var adjustedIdx = new Vector3Int(j, -i, -1);
                 tmp.transform.localPosition = boardGrid.CellToLocal(adjustedIdx) + new Vector3(0.5f, 0.5f, 0);
-                tmp.transform.localScale = tmp.transform.localScale / (spriteScale * 2) * 0.9f;
+                tmp.transform.localScale = tmp.transform.localScale / (targetScale * 2) * 0.9f;
 
                 SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
                 renderer.sprite = targetSprite;

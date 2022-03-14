@@ -56,7 +56,7 @@ public class Board
             throw new IndexOutOfRangeException("(startRow, startCol) not a valid coordinate.");
 
         if (!(Math.Abs(dRow) + Math.Abs(dCol) == 1))
-            throw new ArgumentException("Either dRow XOR dCol must be in {-1,1}; other must == 0.");
+            throw new MoveNotValidException("Either d_row XOR d_col must be in {-1,1}; other must == 0.");
 
         if (!(Penguins[startRow,startCol] > 0))
             throw new ArgumentException("(startRow, startCol) must point to a penguin.");
@@ -85,5 +85,22 @@ public class Board
         }
         // return answers question "was this a win?"
         return Targets[new_row,new_col] == active_penguin;
+    }
+}
+
+public class MoveNotValidException : Exception
+{
+    public MoveNotValidException()
+    {
+    }
+
+    public MoveNotValidException(string message)
+        : base(message)
+    {
+    }
+
+    public MoveNotValidException(string message, Exception inner)
+        : base(message, inner)
+    {
     }
 }
