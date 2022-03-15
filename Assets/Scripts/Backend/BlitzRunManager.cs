@@ -34,6 +34,8 @@ public class BlitzRunManager
         targetCells = new int[16,2];
         Array.Copy(baseBoard.TargetCells, targetCells, 2*baseBoard.TargetCount);
         Shuffle(targetCells);
+
+        NextBoard();
     }
     public bool NextBoard()
     {
