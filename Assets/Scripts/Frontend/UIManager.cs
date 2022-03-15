@@ -13,6 +13,7 @@ public class UIManager : MonoBehaviour
     public Texture2D PenguinBGTex; // put penguin here
     public Texture2D PenguinFGTex; // put penguin here
     public Texture2D TargetTex; // targets here
+    public Material LineMat;
 
     public Color[] IdColors;
     public float WallWidth = 0.1f;
@@ -191,7 +192,8 @@ public class UIManager : MonoBehaviour
         //create new Linerenderer, set texture and width
         LineRenderer renderer = (LineRenderer)line.AddComponent<LineRenderer>();
         renderer.useWorldSpace = false; // draw line relative to GO position
-        renderer.material.SetTexture("_MainTex", (Texture)tileTexs[1]);
+        renderer.material = LineMat;
+        renderer.startColor = renderer.endColor = Color.black;
         renderer.startWidth = width;
         renderer.endWidth = width;
 
