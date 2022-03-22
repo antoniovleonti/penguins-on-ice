@@ -28,7 +28,7 @@ public class BlitzRunManager
     {
         while (baseBoard == null)
         {
-            try { baseBoard = new ProceduralBoard(4); }
+            try { baseBoard = new ProceduralBoard(6); }
             catch {}
         }
         targetCells = new int[16,2];
