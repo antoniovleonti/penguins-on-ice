@@ -12,7 +12,8 @@ public class UIManager : MonoBehaviour
     public Texture2D[] tileTexs; // put obstacle textures here
     public Texture2D PenguinBGTex; // put penguin here
     public Texture2D PenguinFGTex; // put penguin here
-    public Texture2D TargetTex; // targets here
+    public Texture2D TargetBGTex; // targets here
+    public Texture2D TargetFGTex; // targets here
     public Material LineMat;
 
     public Color[] IdColors;
@@ -22,12 +23,14 @@ public class UIManager : MonoBehaviour
     private Sprite[] tileSprites; 
     private Sprite penguinFGSprite;
     private Sprite penguinBGSprite;
-    private Sprite targetSprite;
+    private Sprite targetBGSprite;
+    private Sprite targetFGSprite;
 
     private float tileScale; // size of sprite in world-space
     private float penguinBGScale; // size of sprite in world-space
     private float penguinFGScale; // size of sprite in world-space
-    private float targetScale; // size of sprite in world-space
+    private float targetBGScale; // size of sprite in world-space
+    private float targetFGScale; // size of sprite in world-space
 
     private BlitzRunManager blitz;
 
@@ -67,6 +70,7 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         blitz = gameObject.GetComponent<BackendManager>().Blitz;
+        Debug.Log(blitz.Obstacles);
         // create sprites from provided texture(s)
         int nTextures = tileTexs.GetLength(0);
         tileSprites = new Sprite[nTextures];
@@ -87,14 +91,19 @@ public class UIManager : MonoBehaviour
             PenguinBGTex, new Rect(0.0f, 0.0f, PenguinBGTex.width, PenguinBGTex.height), 
             new Vector2(0.5f, 0.5f), 100.0f ); 
 
-        targetSprite = Sprite.Create(
-            TargetTex, new Rect(0.0f, 0.0f, TargetTex.width, TargetTex.height), 
+        targetFGSprite = Sprite.Create(
+            TargetFGTex, new Rect(0.0f, 0.0f, TargetFGTex.width, TargetFGTex.height), 
+            new Vector2(0.5f, 0.5f), 100.0f ); 
+
+        targetBGSprite = Sprite.Create(
+            TargetBGTex, new Rect(0.0f, 0.0f, TargetBGTex.width, TargetBGTex.height), 
             new Vector2(0.5f, 0.5f), 100.0f ); 
 
         tileScale = tileSprites[0].bounds.extents.x;
         penguinFGScale = penguinFGSprite.bounds.extents.x;
         penguinBGScale = penguinBGSprite.bounds.extents.x;
-        targetScale = targetSprite.bounds.extents.x;
+        targetFGScale = targetFGSprite.bounds.extents.x;
+        targetBGScale = targetBGSprite.bounds.extents.x;
 
         //captures camera, sets position+size for blitz mode
         cam = Camera.main;
@@ -185,7 +194,7 @@ public class UIManager : MonoBehaviour
 
         // set up gameobject in hierarchy 
         var cell = new Vector3Int(j, -i, 1);
-        line.transform.SetParent(tiles.transform);
+        line.transform.SetParent(walls.transform);
         //line.transform.localScale = line.transform.localScale / 4;
         line.transform.localPosition = grid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, -1);
         
@@ -214,7 +223,7 @@ public class UIManager : MonoBehaviour
                 if (blitz.Penguins[I,J] == 0) {continue;}
 
                 GameObject penguin = new GameObject("penguin @ ("+i+", "+j+")"); // create the gameobject
-                penguin.transform.SetParent(tiles.transform);
+                penguin.transform.SetParent(penguins.transform);
 
                 var cell = new Vector3Int(j, -i, -1);
                 penguin.transform.localPosition = grid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, 0);
@@ -247,21 +256,36 @@ public class UIManager : MonoBehaviour
         {
             for (int j = 0; j < blitz.ColumnCells; j++)
             {
-                int I = Board.CellToCoord(i);
+                int I = Board.CellToCoord(i); // "real" positions on board
                 int J = Board.CellToCoord(j);
 
+                // only do anything if there's a penguin here
                 if (blitz.Targets[I,J] == 0) {continue;}
-                //Debug.Log("I:"+I+"\tJ:"+J);
-                GameObject tmp = new GameObject("" + i + " " + j);
-                tmp.transform.SetParent(targets.transform);
 
-                var cell = grid.CellToLocal(new Vector3Int(j, -i, -1));
-                tmp.transform.localPosition = cell + new Vector3(0.5f, 0.5f, 0);
-                tmp.transform.localScale = tmp.transform.localScale / (targetScale * 2) * 0.9f;
+                GameObject target = new GameObject("target @ ("+i+", "+j+")"); // create the gameobject
+                target.transform.SetParent(targets.transform);
 
-                SpriteRenderer renderer = (SpriteRenderer)tmp.AddComponent<SpriteRenderer>();
-                renderer.sprite = targetSprite;
-                renderer.color = IdColors[blitz.Targets[I,J] - 1];
+                var cell = new Vector3Int(j, -i, -1);
+                target.transform.localPosition = grid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, 0);
+
+                // background is the silhouette of the penguin -- changes color
+                GameObject bg = new GameObject("bg");
+                bg.transform.SetParent(target.transform);
+                bg.transform.localPosition = new Vector3(0,0,-1);
+                bg.transform.localScale = bg.transform.localScale / (targetBGScale * 2);
+
+                SpriteRenderer bgRenderer = (SpriteRenderer)bg.AddComponent<SpriteRenderer>();
+                bgRenderer.sprite = targetBGSprite;
+                bgRenderer.color = IdColors[blitz.Targets[I,J]-1];
+
+                // foreground contains penguin details -- does not change color
+                GameObject fg = new GameObject("fg");
+                fg.transform.SetParent(target.transform);
+                fg.transform.localPosition = new Vector3(0,0,-2);
+                fg.transform.localScale = fg.transform.localScale / (targetFGScale * 2);
+
+                SpriteRenderer fgRenderer = (SpriteRenderer)fg.AddComponent<SpriteRenderer>();
+                fgRenderer.sprite = targetFGSprite;
             }
         }
     }
