@@ -3,55 +3,56 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BlitzRunManager 
+public class ProcBoardWrapper : Board
 {
-    private ProceduralBoard baseBoard;
+    private ProceduralBoard sourceBoard;
     private Board activeBoard;
-    public int[,] Obstacles 
+    public new int[,] Obstacles 
     {
         get { return activeBoard.Obstacles; }
     }
-    public int[,] Penguins
+    public new int[,] Penguins
     {
         get { return activeBoard.Penguins; }
     }
-    public int[,] Targets { get { return activeBoard.Targets; } }
-    public int Rows { get { return activeBoard.Rows; } }
-    public int Columns { get { return activeBoard.Columns; } }
-    public int RowCells { get { return activeBoard.RowCells; } }
-    public int ColumnCells { get { return activeBoard.ColumnCells; } }
+    public new int[,] Targets { get { return activeBoard.Targets; } }
+    public new int Rows { get { return activeBoard.Rows; } }
+    public new int Columns { get { return activeBoard.Columns; } }
+    public new int RowCells { get { return activeBoard.RowCells; } }
+    public new int ColumnCells { get { return activeBoard.ColumnCells; } }
     private int[,] targetCells;
     private int targetIdx;
     private static System.Random rnd = new System.Random();
 
-    public BlitzRunManager()
+    public ProcBoardWrapper()
     {
-        while (baseBoard == null)
+        while (sourceBoard == null)
         {
-            try { baseBoard = new ProceduralBoard(6); }
+            try { sourceBoard = new ProceduralBoard(6); }
             catch {}
         }
         targetCells = new int[16,2];
-        Array.Copy(baseBoard.TargetCells, targetCells, 2*baseBoard.TargetCount);
+        Array.Copy(sourceBoard.TargetCells, targetCells, 2*sourceBoard.TargetCount);
+        // we want to get the targets in a random order
         Shuffle(targetCells);
 
         NextBoard();
     }
     public bool NextBoard()
     {
-        if (targetIdx == baseBoard.TargetCount) return false;
+        if (targetIdx == sourceBoard.TargetCount) return false;
         int[,] targetsMap = new int[33,33];
 
         int i = targetCells[targetIdx,0], j = targetCells[targetIdx,1];
         int I = Board.CellToCoord(i), J = Board.CellToCoord(j);
 
-        targetsMap[I,J] = baseBoard.Targets[I,J];
+        targetsMap[I,J] = sourceBoard.Targets[I,J];
         targetIdx++;
 
-        activeBoard = new Board(baseBoard.Obstacles, baseBoard.Penguins, targetsMap);
+        activeBoard = new Board(sourceBoard.Obstacles, sourceBoard.Penguins, targetsMap);
         return true;
     }
-    public bool MakeMove(int startRow, int startCol, int dRow, int dCol)
+    public new bool MakeMove(int startRow, int startCol, int dRow, int dCol)
     {
         return activeBoard.MakeMove(startRow, startCol, dRow, dCol);
     }

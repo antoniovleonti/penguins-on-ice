@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    private BlitzRunManager blitz;
+    private ProcBoardWrapper blitz;
     private Vector3Int selection;
     private Grid grid;
     private UIManager ui;
@@ -13,7 +13,7 @@ public class InputManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        blitz = gameObject.GetComponent<BackendManager>().Blitz;
+        blitz = gameObject.GetComponent<BoardManager>().PBoard;
         grid = gameObject.GetComponent<Grid>();
         ui = gameObject.GetComponent<UIManager>();
         cam = Camera.main; 

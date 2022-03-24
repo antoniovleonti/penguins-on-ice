@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BackendManager : MonoBehaviour
+public class BoardManager : MonoBehaviour
 {
-    public BlitzRunManager Blitz;
+    public ProcBoardWrapper PBoard;
     public int?[] PlayersLowestBids;
     public int[] PlayersPoints;
     public int PlayerCount;
@@ -13,7 +13,7 @@ public class BackendManager : MonoBehaviour
     // initialize things that other modules will use HERE vvvv
     void Awake()
     {
-        Blitz = new BlitzRunManager();
+        PBoard = new ProcBoardWrapper();
     }
     // Start is called before the first frame update
     void Start()
