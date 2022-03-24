@@ -250,12 +250,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12cf1976ff22476aaa5faa6487071e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tileTexs: []
-  PenguinBGTex: {fileID: 0}
-  PenguinFGTex: {fileID: 0}
-  TargetTex: {fileID: 0}
-  LineMat: {fileID: 0}
-  IdColors: []
+  tileTexs:
+  - {fileID: 2800000, guid: d57f8ddf7afb84bdfbc608a4515bf630, type: 3}
+  - {fileID: 2800000, guid: 3399d04de591a4f13857be2afe70177c, type: 3}
+  PenguinBGTex: {fileID: 2800000, guid: 9f1be259a75884204a580a08e372e978, type: 3}
+  PenguinFGTex: {fileID: 2800000, guid: d4fefd76995daf127abf1f5a0bf9023d, type: 3}
+  TargetBGTex: {fileID: 2800000, guid: ef5ead612650706eebcd5d3c4a1374fa, type: 3}
+  TargetFGTex: {fileID: 2800000, guid: 5a43e5473c04cac5d9a65b0527283ba4, type: 3}
+  LineMat: {fileID: 2100000, guid: b2384b5fe13f748fa81db64ae26bb718, type: 2}
+  IdColors:
+  - {r: 0.6132076, g: 0, b: 0, a: 1}
+  - {r: 0.17042889, g: 0.6117647, b: 0, a: 1}
+  - {r: 0, g: 0.28458476, b: 0.6117647, a: 1}
+  - {r: 0.5529103, g: 0, b: 0.6117647, a: 1}
+  - {r: 0.6117647, g: 0.59590614, b: 0, a: 1}
+  - {r: 0.6117647, g: 0.33538392, b: 0, a: 1}
   WallWidth: 0.1
 --- !u!114 &1193036758
 MonoBehaviour:
