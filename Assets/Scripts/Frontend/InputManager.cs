@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    private ProcBoardWrapper blitz;
+    private ProcBoardWrapper boardWrapper;
     private Vector3Int selection;
     private Grid grid;
     private UIManager ui;
@@ -13,7 +13,7 @@ public class InputManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        blitz = gameObject.GetComponent<BoardManager>().PBoard;
+        boardWrapper = gameObject.GetComponent<BoardManager>().PBoard;
         grid = gameObject.GetComponent<Grid>();
         ui = gameObject.GetComponent<UIManager>();
         cam = Camera.main; 
@@ -49,12 +49,12 @@ public class InputManager : MonoBehaviour
             
             // try to make the move
             bool hitTarget = false;
-            try { hitTarget = blitz.MakeMove(startI, startJ, dy, dx); } 
+            try { hitTarget = boardWrapper.MakeMove(startI, startJ, dy, dx); } 
             catch { }
             
             if (hitTarget)  // if they got to the target with the active penguin
             {
-                if (!blitz.NextBoard()) // if the blitz session is over 
+                if (!boardWrapper.NextBoard()) // if the boardWrapper session is over 
                 {
                     Debug.Log("done!");
                 }
