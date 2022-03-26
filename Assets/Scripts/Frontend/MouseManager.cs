@@ -5,18 +5,16 @@ using UnityEngine;
 
 public class MouseManager : MonoBehaviour
 {
-    private PBoardViewer boardPlayer;
     private Vector3Int selection;
+    private BoardManager manager;
     private Grid grid;
-    private BoardRenderer ui;
     private Camera cam;
     // Start is called before the first frame update
     void Start()
     {
-        boardPlayer = gameObject.GetComponent<BoardManager>().BoardViewer;
         grid = gameObject.GetComponent<Grid>();
-        ui = gameObject.GetComponent<BoardRenderer>();
         cam = Camera.main; 
+        manager = gameObject.GetComponent<BoardManager>();
     }
 
     // Update is called once per frame
@@ -45,22 +43,8 @@ public class MouseManager : MonoBehaviour
             int dy = Math.Sign(endI - startI);
             int dx = Math.Sign(endJ - startJ);
 
-            Debug.Log((startI, startJ, dy,dx));
-            
             // try to make the move
-            bool hitTarget = false;
-            try { hitTarget = boardPlayer.MakeMove(startI, startJ, dy, dx); } 
-            catch { }
-            
-            if (hitTarget)  // if they got to the target with the active penguin
-            {
-                if (!boardPlayer.GetNextBoard()) // if the boardPlayer session is over 
-                {
-                    Debug.Log("done!");
-                }
-            }
-            ui.Redraw();
-            //Debug.Log(grid.WorldToCell(cam.ScreenToWorldPoint(Input.mousePosition)));
+            manager.TryMove(startI, startJ, dy, dx);
         }
     }
 }

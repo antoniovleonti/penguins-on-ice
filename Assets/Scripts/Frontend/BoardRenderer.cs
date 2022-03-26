@@ -40,7 +40,6 @@ public class BoardRenderer : MonoBehaviour
 
     private Grid grid; // gameobject addon to make grid calculations easier
     private Camera cam;
-    private Board board;
 
     void Awake()
     {
@@ -69,9 +68,6 @@ public class BoardRenderer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        board = gameObject.GetComponent<BoardManager>().BoardViewer;
-        Debug.Log(board.Obstacles);
-        // create sprites from provided texture(s)
         int nTextures = tileTexs.GetLength(0);
         tileSprites = new Sprite[nTextures];
         for (int i = 0; i < nTextures; i++)
@@ -111,7 +107,6 @@ public class BoardRenderer : MonoBehaviour
         cam.transform.localPosition = new Vector3(8, -7, -10);
         cam.orthographicSize = 9;
 
-        Redraw();
     }
 
     // Update is called once per frame
@@ -119,16 +114,16 @@ public class BoardRenderer : MonoBehaviour
     {
     }
 
-    public void Redraw()
+    public void Redraw(Board board)
     {
-        eraseBoard();
-        drawTiles();
-        drawWalls();
-        drawPenguins();
-        drawTargets();
+        EraseBoard();
+        drawTiles(board);
+        drawWalls(board);
+        drawPenguins(board);
+        drawTargets(board);
     }
 
-    void drawTiles()
+    void drawTiles(Board board)
     {
         // add background tiles (odd indices in board.obstacles)
         for (int i = 0; i < board.RowCells; i++)
@@ -151,7 +146,7 @@ public class BoardRenderer : MonoBehaviour
         }
     }
 
-    void drawWalls()
+    void drawWalls(Board board)
     {
         // constant corner positions relative to cell
         var topLeft = new Vector3(-0.5f, 0.5f, 0f);
@@ -210,7 +205,7 @@ public class BoardRenderer : MonoBehaviour
         renderer.SetPositions(new Vector3[]{localPosA, localPosB});
     }
 
-    void drawPenguins()
+    void drawPenguins(Board board)
     {
         for (int i = 0; i < board.RowCells; i++)
         {
@@ -250,7 +245,7 @@ public class BoardRenderer : MonoBehaviour
         }
     }
 
-    void drawTargets()
+    void drawTargets(Board board)
     {
         for (int i = 0; i < board.RowCells; i++)
         {
@@ -290,7 +285,7 @@ public class BoardRenderer : MonoBehaviour
         }
     }
 
-    void eraseBoard()
+    public void EraseBoard()
     {
         // delete all children of the board game object
         int n = tiles.transform.childCount;

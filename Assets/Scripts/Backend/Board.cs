@@ -46,51 +46,71 @@ public class Board
         return cell * 2 + 1;
     }
 
-    public bool CoordIsInBounds(int row, int col)
+    public bool CoordIsInBounds(int col, int row)
     {
         return 0 <= row && row < Rows && 
             0 <= col && col < Columns;
     }
 
-    public bool CellIsInBounds(int row, int col)
+    public bool CellIsInBounds(int col, int row)
     {
         return 0 <= row && row < RowCells &&
             0 <= col && col < ColumnCells;
     }
+    public bool IsValidMove(int startCol, int startRow, int dCol, int dRow)
+    {
+        if (CoordIsInBounds(startCol, startRow) && 
+            Math.Abs(dRow) + Math.Abs(dCol) == 1 && 
+            Penguins[startCol,startRow] > 0)
+        {
+            return true;
+        }
+        else return false;
+    }
+    
     // calculate destination of move
-    public (int,int)? CalculateMove(int startRow, int startCol, int dRow, int dCol)
+    public (int,int) CalculateMove(int startCol, int startRow, int dCol, int dRow)
     {
         // validate input
-        if (!CoordIsInBounds(startRow, startCol)) return null;
-        if (!(Math.Abs(dRow) + Math.Abs(dCol) == 1)) return null;
-        if (!(Penguins[startRow,startCol] > 0)) return null;
+        if (!IsValidMove(startCol,startRow,dCol,dRow))
+        {
+            throw new Exception("Cannot calculate destination of invalid move!");
+        }
 
         // start moving penguin
-        int activePenguin = Penguins[startRow,startCol];
+        int activePenguin = Penguins[startCol,startRow];
         int newRow = startRow, newCol = startCol;
         // step penguin until next obstacle or penguin is found
-        while ( CoordIsInBounds(newRow + dRow * 2, newCol + dCol * 2) &&
-                Penguins[newRow + dRow * 2,newCol + dCol * 2] == 0 &&
-                Obstacles[newRow + dRow,newCol + dCol] == 0
-        ){
+        bool CanMoveOneMoreSquare(int curY, int curX)
+        {
+            return (
+                CoordIsInBounds(curY + dCol * 2, curX + dRow * 2) &&
+                Penguins[curY + dCol * 2, curX + dRow * 2] == 0 &&
+                Obstacles[curY + dCol, curX + dRow] == 0
+            );
+        }
+        while (CanMoveOneMoreSquare(newCol,newRow))
+        {
             newRow += dRow * 2;
             newCol += dCol * 2;
             
-            if (Targets[newRow,newCol] == activePenguin)
+            if (Targets[newCol,newRow] == activePenguin)
                 break;
         }
         // simply return the new col and row
         return (newCol, newRow);
     }
-    public bool MakeMove(int startRow, int startCol, int dRow, int dCol)
+    public bool MakeMove(int startCol, int startRow, int dCol, int dRow)
     {
-        (int,int)? tmp = CalculateMove(startRow,startCol,dRow,dCol);
-        if (tmp == null) return false;
-        int newCol, newRow; (newCol,newRow) = tmp ?? (-1,-1);
+        (int,int) tmp = CalculateMove(startCol,startRow,dCol,dRow);
+        int newCol, newRow; (newCol,newRow) = tmp; 
+
+        int activePenguin = Penguins[startCol,startRow];
+        Penguins[startCol,startRow] = 0;
+        Penguins[newCol,newRow] = activePenguin;
         
         // return answers question "was this a win?"
-        int activePenguin = Penguins[startRow,startCol];
-        return Targets[newRow,newCol] == activePenguin;
+        return Targets[newCol,newRow] == activePenguin;
     }
     public Board? GetLastBoardState()
     {

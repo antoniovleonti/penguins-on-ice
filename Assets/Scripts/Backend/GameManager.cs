@@ -19,7 +19,7 @@ public class GameManager
     {
         if (BoardViewer.GetNextBoard())
         {
-            CurrentRound = new RoundManager(BoardViewer, PlayerCount);
+            CurrentRound = new RoundManager(BoardViewer.CurrentBoard, PlayerCount);
             return true;
         }
         return false;
