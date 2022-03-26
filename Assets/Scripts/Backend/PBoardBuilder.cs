@@ -4,20 +4,21 @@ using PriorityQueues;
 using UnityEngine;
 
 
-public class ProceduralBoard : Board
+public class PBoardBuilder : Board
 {
     // inherits all properties of Board
     public int[,] TargetCells;
     public int TargetCount;
-    private System.Random rnd = new System.Random(); 
     private bool[,] taken; // used to generate board and track free spaces
     private int[,,] shortestPathTrees;
     private int nPenguins;
+    private static System.Random rnd = new System.Random(); 
 
-    // procedurally generate a 16x16, 4-penguin board
-    public ProceduralBoard(int nPenguins_)
+    // default board config
+    public PBoardBuilder () : this (8, 4, 4) { }
+    public PBoardBuilder(int quadSize, int quadLWalls, int nPenguins_)
     {
-        RowCells = ColumnCells = 16;
+        RowCells = ColumnCells = quadSize * 2;
         Rows = Columns = RowCells * 2 + 1;
         Obstacles = new int[Rows,Columns];
         Penguins = new int[Rows,Columns];
@@ -26,7 +27,7 @@ public class ProceduralBoard : Board
         // this will ensure no corners are too close to each other
         nPenguins = nPenguins_;
         taken = new bool[RowCells, ColumnCells];
-        TargetCells = new int[16,2];
+        TargetCells = new int[quadLWalls*4,2];
         TargetCount = 0;
         shortestPathTrees = new int[nPenguins, RowCells, ColumnCells];
 
@@ -37,26 +38,29 @@ public class ProceduralBoard : Board
             Obstacles[Rows-1,i] = Obstacles[i,Columns-1] = 1; // bottom right corner
         }
         // create center square
-        int start = CellToCoord(7) - 1, end = CellToCoord(9);
-        for (int i = start; i < end; i++)
-        for (int j = start; j < end; j++)
+        int startCell = quadSize - 1, endCell = quadSize + 1;
+        int startCoord = CellToCoord(startCell)-1, endCoord = CellToCoord(endCell);
+        for (int i = startCoord; i < endCoord; i++)
+        for (int j = startCoord; j < endCoord; j++)
             Obstacles[i,j] = 1;
 
         // (and mark them as "taken")
-        for (int i = 6; i <= 9; i++) 
-        for (int j = 6; j <= 9; j++)
+        for (int i = startCell; i < endCell; i++)
+        for (int j = startCell; j < endCell; j++)
             taken[i,j] = true;
 
         // fill each quadrant w/ 4 L walls and 2 border walls
         for (int quadY = 0; quadY <= 1; quadY++)
         for (int quadX = 0; quadX <= 1; quadX++)
         {
-            addLWalls(quadY, quadX);
+            addLWalls(quadY, quadX, quadLWalls);
             addBorderWalls(quadY, quadX);
         }        
         // now add the penguins
         addPenguins();
         assignTargets();
+        // finally randomize target order
+        shuffle(TargetCells);
     }
 
     private void assignTargets()
@@ -203,22 +207,6 @@ public class ProceduralBoard : Board
         }
         return dist;
     }
-    // this utility function returns a random x,y from a rectangular
-    // area of x,y's that fit some criteria 
-    private (int,int)? randMatchIdx(
-        int yTop, int yBottom, int xLeft, int xRight, // bounds
-        Func<int, int, bool> doesMatch // predicate to match
-    ){
-        // store the indices of matches in the order we find them
-        List<(int,int)> matches = new List<(int,int)>();
-        for (int i = yTop; i < yBottom; i++)
-            for (int j = xLeft; j < xRight; j++)
-                if (doesMatch(i, j)) matches.Add((i,j));
-
-        // we now have all matches from that region; pick a random one.
-        if (matches.Count == 0) return null;
-        return matches[rnd.Next(matches.Count)]; 
-    }
 
     private void addBorderWalls(int quadY, int quadX)
     {
@@ -269,71 +257,117 @@ public class ProceduralBoard : Board
         Obstacles[Y, X] = Obstacles[Y, X+inwardX] = 1;
     }
 
-    private void addLWalls(int quadY, int quadX)
+    private void addLWalls(int quadY, int quadX, int quadLWalls)
     {
         // boundaries of quadrant
         int qTop = quadY == 0 ? 1 : RowCells/2;
         int qBottom = qTop + RowCells/2-2;
         int qLeft = quadX == 0 ? 1 : ColumnCells/2;
         int qRight = qLeft + ColumnCells/2-2;
+        // track number of walls we have already placed
+        int wallCount = 0;
+        // all possible relative corner coords
+        int[,] localCornerCoords = new int[,]{{1,1},{1,-1},{-1,1},{-1,-1}};
         // iterate through relative corner coords
-        for (int cY = -1; cY <= 1; cY += 2)
-        for (int cX = -1; cX <= 1; cX += 2)
+        while (wallCount < quadLWalls)
         {
-            // this function determines if a particular CELL is
-            // a suitable location for the curent L wall
-            bool validCorner(int i, int j)
+            shuffle(localCornerCoords);
+            for ( int lcc = 0
+                ; lcc < localCornerCoords.GetLength(0) 
+                  && wallCount < quadLWalls
+                ; lcc++)
             {
-                if (taken[i,j]) return false;
-                int I = CellToCoord(i), J = CellToCoord(j);
-                // (sorry for these cryptic ass loops)
-                // check for "collisions" with nearby L walls 
+                int cY = localCornerCoords[lcc,0]; 
+                int cX = localCornerCoords[lcc,1];
+                // this function determines if a particular CELL is
+                // a suitable location for the curent L wall
+                bool validCorner(int i, int j)
+                {
+                    if (taken[i,j]) return false;
+                    int I = CellToCoord(i), J = CellToCoord(j);
+                    // (sorry for these cryptic ass loops)
+                    // check for "collisions" with nearby L walls 
 
-                // ( overshoot the end of the vertical wall & clamp to board size
-                // ; while you haven't overshot in the opposite direction...
-                // ; move 2 in the opposite direction
-                for ( int k = Math.Max(Math.Min( I-cY*4, Rows-2 ), 1)
-                    ; k != I+6*cY && 0 <= k && k < Columns
-                    ; k += 2*cY 
-                ){
-                    if (Obstacles[k, J+cX] != 0) return false;
-                }
-                // same structure as loop above, just changed for horizontal wall
-                for ( int k = Math.Max(Math.Min( J-cX*4, Rows-2 ), 1)
-                    ; k != J+6*cX && 0 <= k && k < Columns
-                    ; k += 2*cX 
-                ){
-                    if (Obstacles[I+cY, k] != 0) return false;
-                }
+                    // ( overshoot the end of the vertical wall & clamp to board size
+                    // ; while you haven't overshot in the opposite direction...
+                    // ; move 2 in the opposite direction
+                    for ( int k = Math.Max(Math.Min( I-cY*4, Rows-2 ), 1)
+                        ; k != I+6*cY && 0 <= k && k < Columns
+                        ; k += 2*cY 
+                    ){
+                        if (Obstacles[k, J+cX] != 0) return false;
+                    }
+                    // same structure as loop above, just changed for horizontal wall
+                    for ( int k = Math.Max(Math.Min( J-cX*4, Rows-2 ), 1)
+                        ; k != J+6*cX && 0 <= k && k < Columns
+                        ; k += 2*cX 
+                    ){
+                        if (Obstacles[I+cY, k] != 0) return false;
+                    }
 
-                return true;
+                    return true;
+                }
+                // pick a random spot in this quadrant
+                var cell = randMatchIdx(qTop,qBottom,qLeft,qRight, validCorner);
+                if (cell == null) throw new Exception("No space for corner!");
+                // we know cell isn't null but null coalescing is necessary for cast
+                int y,x; (y,x) = cell ?? (0,0);
+                
+                // place the corner
+                int Y = CellToCoord(y), X = CellToCoord(x);
+                for (int i = 0; i < 3; i++)
+                    Obstacles[Y + cY, X + cX - i*cX] = 
+                        Obstacles[Y + cY - i*cY, X + cX] = 1;
+
+                // note this so we can put a target here eventually
+                TargetCells[TargetCount,0] = y;
+                TargetCells[TargetCount,1] = x;
+                TargetCount++;
+                wallCount++;
+                // also mark it in the Targets array with a temp '-1' for quick lookup
+                Targets[Y,X] = -1;
+                // update the taken array
+                // first the whole row and column within this quadrant
+                for (int i=qTop; i<qTop+RowCells/2-1; i++) taken[i,x] = true;
+                for (int j=qLeft; j<qLeft+ColumnCells/2-1; j++) taken[y,j] = true;
+                // now the bordering cells
+                for (int i = 0; i < 3; i++)
+                    taken[y-(1-i),x-1] = taken[y-(1-i),x+1] = 
+                        taken[y-1,x-(1-i)] = taken[y+1,x-(1-i)] = true;
             }
-            // pick a random spot in this quadrant
-            var cell = randMatchIdx(qTop,qBottom,qLeft,qRight, validCorner);
-            if (cell == null) throw new Exception("No space for corner!");
-            // we know cell isn't null but null coalescing is necessary for cast
-            int y,x; (y,x) = cell ?? (0,0);
-            
-            // place the corner
-            int Y = CellToCoord(y), X = CellToCoord(x);
-            for (int i = 0; i < 3; i++)
-                Obstacles[Y + cY, X + cX - i*cX] = 
-                    Obstacles[Y + cY - i*cY, X + cX] = 1;
+        }
+    }
+    // this utility function returns a random x,y from a rectangular
+    // area of x,y's that fit some criteria 
+    private (int,int)? randMatchIdx(
+        int yTop, int yBottom, int xLeft, int xRight, // bounds
+        Func<int, int, bool> doesMatch // predicate to match
+    ){
+        // store the indices of matches in the order we find them
+        List<(int,int)> matches = new List<(int,int)>();
+        for (int i = yTop; i < yBottom; i++)
+            for (int j = xLeft; j < xRight; j++)
+                if (doesMatch(i, j)) matches.Add((i,j));
 
-            // note this so we can put a target here eventually
-            TargetCells[TargetCount,0] = y;
-            TargetCells[TargetCount,1] = x;
-            TargetCount++;
-            // also mark it in the Targets array with a temp '-1' for quick lookup
-            Targets[Y,X] = -1;
-            // update the taken array
-            // first the whole row and column within this quadrant
-            for (int i=qTop; i<qTop+RowCells/2-1; i++) taken[i,x] = true;
-            for (int j=qLeft; j<qLeft+ColumnCells/2-1; j++) taken[y,j] = true;
-            // now the bordering cells
-            for (int i = 0; i < 3; i++)
-                taken[y-(1-i),x-1] = taken[y-(1-i),x+1] = 
-                taken[y-1,x-(1-i)] = taken[y+1,x-(1-i)] = true;
+        // we now have all matches from that region; pick a random one.
+        if (matches.Count == 0) return null;
+        return matches[rnd.Next(matches.Count)]; 
+    }
+    // just shuffle a 2d array
+    private static void shuffle(int[,] arr)
+    {
+        int height = arr.GetLength(0);
+        int width = arr.GetLength(1);
+
+        for (int i = 0; i < width; ++i)
+        {
+            int randomRow = rnd.Next(i, height);
+            for (int j = 0; j < width; ++j)
+            {
+                int tmp = arr[i, j];
+                arr[i, j] = arr[randomRow, j];
+                arr[randomRow, j] = tmp;
+            }
         }
     }
 }

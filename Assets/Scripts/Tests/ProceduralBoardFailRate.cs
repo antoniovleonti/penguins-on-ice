@@ -11,7 +11,7 @@ public class ProceduralBoardFailRate : MonoBehaviour
         int fails = 0;
         for (int k = 0; k < 100000; k++)
         {
-            try { ProceduralBoard bs = new ProceduralBoard(4); }
+            try { var bs = new PBoardBuilder(); }
             catch (System.Exception) { fails += 1; }
             // string s = "";
             //for (int i = 0; i < bs.Rows; i++)

@@ -35,10 +35,10 @@ public class IOManager : MonoBehaviour
     void Start()
     {
         //board = new Board(obstacles, penguins, targets);
-        ProceduralBoard pb = null;
+        PBoardBuilder pb = null;
         while (pb == null)
         {
-            try { pb = new ProceduralBoard(4); }
+            try { pb = new PBoardBuilder(); }
             catch (System.Exception) {}
         }
         board = pb;

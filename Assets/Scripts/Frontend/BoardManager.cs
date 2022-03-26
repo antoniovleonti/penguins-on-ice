@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
-    public ProcBoardWrapper PBoard;
+    public PBoardViewer BoardViewer;
     public int?[] PlayersLowestBids;
     public int[] PlayersPoints;
     public int PlayerCount;
@@ -13,7 +13,7 @@ public class BoardManager : MonoBehaviour
     // initialize things that other modules will use HERE vvvv
     void Awake()
     {
-        PBoard = new ProcBoardWrapper();
+        BoardViewer = new PBoardViewer(6, 2, 3);
     }
     // Start is called before the first frame update
     void Start()

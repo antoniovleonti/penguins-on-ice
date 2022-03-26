@@ -3,19 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InputManager : MonoBehaviour
+public class MouseManager : MonoBehaviour
 {
-    private ProcBoardWrapper boardWrapper;
+    private PBoardViewer boardPlayer;
     private Vector3Int selection;
     private Grid grid;
-    private UIManager ui;
+    private BoardRenderer ui;
     private Camera cam;
     // Start is called before the first frame update
     void Start()
     {
-        boardWrapper = gameObject.GetComponent<BoardManager>().PBoard;
+        boardPlayer = gameObject.GetComponent<BoardManager>().BoardViewer;
         grid = gameObject.GetComponent<Grid>();
-        ui = gameObject.GetComponent<UIManager>();
+        ui = gameObject.GetComponent<BoardRenderer>();
         cam = Camera.main; 
     }
 
@@ -49,12 +49,12 @@ public class InputManager : MonoBehaviour
             
             // try to make the move
             bool hitTarget = false;
-            try { hitTarget = boardWrapper.MakeMove(startI, startJ, dy, dx); } 
+            try { hitTarget = boardPlayer.MakeMove(startI, startJ, dy, dx); } 
             catch { }
             
             if (hitTarget)  // if they got to the target with the active penguin
             {
-                if (!boardWrapper.NextBoard()) // if the boardWrapper session is over 
+                if (!boardPlayer.GetNextBoard()) // if the boardPlayer session is over 
                 {
                     Debug.Log("done!");
                 }

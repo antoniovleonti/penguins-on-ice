@@ -7,14 +7,14 @@ public class ProceduralBoardSample : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ProceduralBoard pb = null;
+        PBoardBuilder pb = null;
         // while (pb == null)
         //{
             //try { pb = new ProceduralBoard(4); }
             //catch (System.Exception) { tries++; }
         //}
         //Debug.Log("failed attempts: " + tries);
-        pb = new ProceduralBoard(4); 
+        pb = new PBoardBuilder(); 
         string s = "obstacles\n";
         for (int i = 0; i < pb.Rows; i++)
         { 

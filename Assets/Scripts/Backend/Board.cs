@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Board 
@@ -10,9 +11,17 @@ public class Board
     public int Rows; 
     public int ColumnCells;
     public int Columns;
+    public int MoveCount = 0;
+    private Stack<Board> previousMoves = new Stack<Board>();
 
-    public Board()
-    {}
+    public Board() { }
+
+    // copy constructor
+    public Board(Board b) : this (b.Obstacles, b.Penguins, b.Targets) 
+    { 
+        MoveCount = b.MoveCount;
+        previousMoves = b.previousMoves;
+    }
 
     public Board(int[,] _obstacles, int[,] _penguins, int[,] _targets)
     {
@@ -48,51 +57,57 @@ public class Board
         return 0 <= row && row < RowCells &&
             0 <= col && col < ColumnCells;
     }
-
-    public bool MakeMove(int startRow, int startCol, int dRow, int dCol)
+    // calculate destination of move
+    public (int,int)? CalculateMove(int startRow, int startCol, int dRow, int dCol)
     {
         // validate input
-        if (!CoordIsInBounds(startRow, startCol))
-            throw new IndexOutOfRangeException("(startRow, startCol) not a valid coordinate.");
-
-        if (!(Math.Abs(dRow) + Math.Abs(dCol) == 1))
-            throw new MoveNotValidException("Either d_row XOR d_col must be in {-1,1}; other must == 0.");
-
-        if (!(Penguins[startRow,startCol] > 0))
-            throw new ArgumentException("(startRow, startCol) must point to a penguin.");
+        if (!CoordIsInBounds(startRow, startCol)) return null;
+        if (!(Math.Abs(dRow) + Math.Abs(dCol) == 1)) return null;
+        if (!(Penguins[startRow,startCol] > 0)) return null;
 
         // start moving penguin
-        int active_penguin = Penguins[startRow,startCol];
-        int new_row = startRow, new_col = startCol;
+        int activePenguin = Penguins[startRow,startCol];
+        int newRow = startRow, newCol = startCol;
         // step penguin until next obstacle or penguin is found
-        while ( CoordIsInBounds(new_row + dRow * 2, new_col + dCol * 2) &&
-                Penguins[new_row + dRow * 2,new_col + dCol * 2] == 0 &&
-                Obstacles[new_row + dRow,new_col + dCol] == 0
+        while ( CoordIsInBounds(newRow + dRow * 2, newCol + dCol * 2) &&
+                Penguins[newRow + dRow * 2,newCol + dCol * 2] == 0 &&
+                Obstacles[newRow + dRow,newCol + dCol] == 0
         ){
-            new_row += dRow * 2;
-            new_col += dCol * 2;
+            newRow += dRow * 2;
+            newCol += dCol * 2;
             
-            if (Targets[new_row,new_col] == active_penguin)
-            {
+            if (Targets[newRow,newCol] == activePenguin)
                 break;
-            }
         }
-        // actually make the move if the penguin moved anywhere
-        if (startRow != new_row || startCol != new_col)
-        {
-            Penguins[startRow,startCol] = 0;
-            Penguins[new_row,new_col] = active_penguin;
-        }
+        // simply return the new col and row
+        return (newCol, newRow);
+    }
+    public bool MakeMove(int startRow, int startCol, int dRow, int dCol)
+    {
+        (int,int)? tmp = CalculateMove(startRow,startCol,dRow,dCol);
+        if (tmp == null) return false;
+        int newCol, newRow; (newCol,newRow) = tmp ?? (-1,-1);
+        
         // return answers question "was this a win?"
-        return Targets[new_row,new_col] == active_penguin;
+        int activePenguin = Penguins[startRow,startCol];
+        return Targets[newRow,newCol] == activePenguin;
+    }
+    public Board? GetLastBoardState()
+    {
+        if (MoveCount == 0) return null;
+        return previousMoves.Pop();
+    }
+    public Board GetFirstBoardState()
+    {
+        Board ans = null;
+        while (previousMoves.Count > 0) ans = previousMoves.Pop();
+        return ans ?? this;
     }
 }
 
 public class MoveNotValidException : Exception
 {
-    public MoveNotValidException()
-    {
-    }
+    public MoveNotValidException() { }
 
     public MoveNotValidException(string message)
         : base(message)
