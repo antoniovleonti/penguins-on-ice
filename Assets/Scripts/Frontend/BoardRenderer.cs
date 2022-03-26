@@ -41,10 +41,9 @@ public class BoardRenderer : MonoBehaviour
     private Grid grid; // gameobject addon to make grid calculations easier
     private Camera cam;
 
+    // things that need to happen before the script can be used go HERE
     void Awake()
     {
-        // stuff that other components want to access
-        // create board gameobject to be a parent to all tiles
         tiles = new GameObject("board");
         tiles.transform.SetParent(gameObject.transform);
         tiles.transform.localPosition = Vector3.zero;
@@ -61,16 +60,11 @@ public class BoardRenderer : MonoBehaviour
         targets.transform.SetParent(gameObject.transform);
         targets.transform.localPosition = Vector3.zero;
 
-        // add a board grid which will do grid position calculations for us
+        // add a grid which will do position calculations for us
         grid = gameObject.AddComponent(typeof(Grid)) as Grid;
-    }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        int nTextures = tileTexs.GetLength(0);
-        tileSprites = new Sprite[nTextures];
-        for (int i = 0; i < nTextures; i++)
+        tileSprites = new Sprite[tileTexs.GetLength(0)];
+        for (int i = 0; i < tileTexs.GetLength(0); i++)
         {
             Texture2D tex = tileTexs[i];
             tileSprites[i] = Sprite.Create(
@@ -80,19 +74,23 @@ public class BoardRenderer : MonoBehaviour
 
         //IdColors = new Color[]{Color.red, Color.blue, Color.green, Color.yellow};
         penguinFGSprite = Sprite.Create(
-            PenguinFGTex, new Rect(0.0f, 0.0f, PenguinFGTex.width, PenguinFGTex.height), 
+            PenguinFGTex, 
+            new Rect(0.0f, 0.0f, PenguinFGTex.width, PenguinFGTex.height), 
             new Vector2(0.5f, 0.5f), 100.0f ); 
 
         penguinBGSprite = Sprite.Create(
-            PenguinBGTex, new Rect(0.0f, 0.0f, PenguinBGTex.width, PenguinBGTex.height), 
+            PenguinBGTex, 
+            new Rect(0.0f, 0.0f, PenguinBGTex.width, PenguinBGTex.height), 
             new Vector2(0.5f, 0.5f), 100.0f ); 
 
         targetFGSprite = Sprite.Create(
-            TargetFGTex, new Rect(0.0f, 0.0f, TargetFGTex.width, TargetFGTex.height), 
+            TargetFGTex, 
+            new Rect(0.0f, 0.0f, TargetFGTex.width, TargetFGTex.height), 
             new Vector2(0.5f, 0.5f), 100.0f ); 
 
         targetBGSprite = Sprite.Create(
-            TargetBGTex, new Rect(0.0f, 0.0f, TargetBGTex.width, TargetBGTex.height), 
+            TargetBGTex, 
+            new Rect(0.0f, 0.0f, TargetBGTex.width, TargetBGTex.height), 
             new Vector2(0.5f, 0.5f), 100.0f ); 
 
         tileScale = tileSprites[0].bounds.extents.x;
@@ -100,7 +98,11 @@ public class BoardRenderer : MonoBehaviour
         penguinBGScale = penguinBGSprite.bounds.extents.x;
         targetFGScale = targetFGSprite.bounds.extents.x;
         targetBGScale = targetBGSprite.bounds.extents.x;
+        Debug.Log(tileScale);
+    }
 
+    void Start()
+    {
         //captures camera, sets position+size for board mode
         cam = Camera.main;
         cam.transform.SetParent(gameObject.transform);
