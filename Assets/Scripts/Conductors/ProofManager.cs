@@ -5,14 +5,31 @@ using PriorityQueues;
 
 public class ProofManager : MonoBehaviour
 {
-    BinaryHeap<int,int> bidQ;
+    BinaryHeap<(int,int),int> bidQ;
+    bool[] hasTried;
     Board board;
+    BoardRenderer bRenderer;
+    ProofInput input;
+    RoundManager manager;
+    int currentBid;
+    int currentPlayer;
     // Start is called before the first frame update
+    void Awake()
+    {
+        bRenderer = gameObject.GetComponent<BoardRenderer>();
+        manager = gameObject.GetComponent<RoundManager>();
+        input = gameObject.AddComponent<ProofInput>();
+    }
+
     void Start()
     {
-        
+        nextBid();
     }
-    public void Init(Board board_, BinaryHeap<int,int> bidQ_)
+    void OnDestroy()
+    {
+        Destroy(input);
+    }
+    public void Init(Board board_, BinaryHeap<(int,int),int> bidQ_)
     {
         board = board_;
         bidQ = bidQ_;
@@ -22,5 +39,50 @@ public class ProofManager : MonoBehaviour
     void Update()
     {
         
+    }
+    void nextBid()
+    {
+        board = board.GetFirstBoardState();
+        bRenderer.Redraw(board);
+        bool first = true;
+        while (first || hasTried[currentPlayer])
+        {
+            if (bidQ.Count == 0) 
+            {
+                manager.FinishProofs(-1);
+                break;
+            }
+
+            (currentPlayer, currentBid) = bidQ.Dequeue();
+            first = false;
+        }
+        Debug.Log("Current bid: player " + currentPlayer + " for " + currentBid);
+    }
+    public void TryMove(int startY, int startX, int dY, int dX)
+    {
+        if (!board.IsValidMove(startY,startX,dY,dX)) 
+        {
+            Debug.Log("Invalid move");
+            return;
+        }
+        // calculate move dest and animate it
+        int y,x; (y,x) = board.CalculateMove(startY,startX, dY,dX);
+        Debug.Log((x,y));
+        Debug.Log(board.MoveCount);
+        // TODO: bRenderer.AnimateMove()
+
+        bool didWin = board.MakeMove(startY,startX,dY,dX);
+        if (didWin) 
+        {
+            if (board.MoveCount == currentBid)
+                manager.FinishProofs(currentPlayer);
+            // winning logic: probably just letting manager know the winner
+            else nextBid();
+        }
+        else if (board.MoveCount >= currentBid)
+        {
+            nextBid();
+        }
+        else bRenderer.Redraw(board);
     }
 }

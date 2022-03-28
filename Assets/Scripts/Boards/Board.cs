@@ -11,7 +11,10 @@ public class Board
     public int Rows; 
     public int ColumnCells;
     public int Columns;
-    public int MoveCount = 0;
+    public int MoveCount 
+    {
+        get { return previousMoves.Count; }
+    }
     private Stack<Board> previousMoves = new Stack<Board>();
 
     public Board() { }
@@ -19,7 +22,6 @@ public class Board
     // copy constructor
     public Board(Board b) : this (b.Obstacles, b.Penguins, b.Targets) 
     { 
-        MoveCount = b.MoveCount;
         previousMoves = b.previousMoves;
     }
 
@@ -91,8 +93,8 @@ public class Board
         }
         while (CanMoveOneMoreSquare(newCol,newRow))
         {
-            newRow += dRow * 2;
             newCol += dCol * 2;
+            newRow += dRow * 2;
             
             if (Targets[newCol,newRow] == activePenguin)
                 break;
@@ -102,6 +104,7 @@ public class Board
     }
     public bool MakeMove(int startCol, int startRow, int dCol, int dRow)
     {
+        previousMoves.Push(new Board(this));
         (int,int) tmp = CalculateMove(startCol,startRow,dCol,dRow);
         int newCol, newRow; (newCol,newRow) = tmp; 
 
@@ -112,10 +115,12 @@ public class Board
         // return answers question "was this a win?"
         return Targets[newCol,newRow] == activePenguin;
     }
-    public Board? GetLastBoardState()
+
+    // board history functions
+    public Board PopLastBoardState()
     {
         if (MoveCount == 0) return null;
-        return previousMoves.Pop();
+        return previousMoves.Peek();
     }
     public Board GetFirstBoardState()
     {

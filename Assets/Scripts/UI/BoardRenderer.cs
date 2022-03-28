@@ -60,6 +60,9 @@ public class BoardRenderer : MonoBehaviour
         targets.transform.SetParent(gameObject.transform);
         targets.transform.localPosition = Vector3.zero;
 
+        cam = Camera.main;
+        cam.transform.SetParent(gameObject.transform);
+
         // add a grid which will do position calculations for us
         grid = gameObject.AddComponent(typeof(Grid)) as Grid;
 
@@ -98,16 +101,11 @@ public class BoardRenderer : MonoBehaviour
         penguinBGScale = penguinBGSprite.bounds.extents.x;
         targetFGScale = targetFGSprite.bounds.extents.x;
         targetBGScale = targetBGSprite.bounds.extents.x;
-        Debug.Log(tileScale);
     }
 
     void Start()
     {
         //captures camera, sets position+size for board mode
-        cam = Camera.main;
-        cam.transform.SetParent(gameObject.transform);
-        cam.transform.localPosition = new Vector3(8, -7, -10);
-        cam.orthographicSize = 9;
 
     }
 
@@ -123,6 +121,18 @@ public class BoardRenderer : MonoBehaviour
         drawWalls(board);
         drawPenguins(board);
         drawTargets(board);
+
+        positionCam(board);
+    }
+
+    void positionCam(Board board)
+    {
+        var centerCell = new Vector3Int(board.ColumnCells/2, -board.RowCells/2,1);
+        var centerLocal = grid.CellToLocal(centerCell);
+        centerLocal.z = -10;
+        
+        cam.transform.localPosition = centerLocal;
+        cam.orthographicSize = Math.Max(board.ColumnCells,board.RowCells) / 2 + 3;
     }
 
     void drawTiles(Board board)

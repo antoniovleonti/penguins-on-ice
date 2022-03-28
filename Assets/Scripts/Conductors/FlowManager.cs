@@ -6,14 +6,15 @@ public class FlowManager : MonoBehaviour
 {
     // Start is called before the first frame update
     PBoardViewer boards;
-    public int PlayerCount;
-    int[] playerScores;
+    public int[] PlayerScores;
     RoundManager round = null;
+    AuctionUIRenderer ui;
     void Start()
     {
-        boards = new PBoardViewer();
-        playerScores = new int[PlayerCount];
-        StartNextRound();
+        ui = gameObject.GetComponent<AuctionUIRenderer>();
+        boards = new PBoardViewer(5,1,2);
+        PlayerScores = new int[64];
+        StartNextRound(-1);
     }
 
     // Update is called once per frame
@@ -22,13 +23,20 @@ public class FlowManager : MonoBehaviour
         
     }
 
-    public void StartNextRound()
+    public void StartNextRound(int winner)
     {
-        if (round != null) { Destroy(round); }
+        if (winner != -1) 
+        {
+            PlayerScores[winner]++;
+            ui.RefreshWins(PlayerScores);
+            Debug.Log("refreshed scores");
+        }
 
         boards.GetNextBoard();
 
+        Destroy(round);
+
         round = gameObject.AddComponent<RoundManager>();
-        round.Init(boards.CurrentBoard, PlayerCount);
+        round.Init(boards.CurrentBoard);
     }
 }

@@ -2,11 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class ProofInputManager : MonoBehaviour
+public class ProofInput : MonoBehaviour
 {
     private Vector3Int selection;
-    private BoardManager manager;
+    private ProofManager manager;
     private Grid grid;
     private Camera cam;
     // Start is called before the first frame update
@@ -14,22 +15,30 @@ public class ProofInputManager : MonoBehaviour
     {
         grid = gameObject.GetComponent<Grid>();
         cam = Camera.main; 
-        manager = gameObject.GetComponent<BoardManager>();
+        manager = gameObject.GetComponent<ProofManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            var world = cam.ScreenToWorldPoint(Input.mousePosition);
+            var mousePos = Mouse.current.position;
+            var vec = new Vector3(  mousePos.x.ReadValue(), 
+                                    mousePos.y.ReadValue(), 
+                                    0 );
+            var world = cam.ScreenToWorldPoint(vec);
             var local = grid.WorldToLocal(world);
             selection = grid.LocalToCell(local);
         }
-        if (Input.GetMouseButtonUp(0))
+        if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
             // first grab the location of the mouse
-            var world = cam.ScreenToWorldPoint(Input.mousePosition);
+            var mousePos = Mouse.current.position;
+            var vec = new Vector3(  mousePos.x.ReadValue(), 
+                                    mousePos.y.ReadValue(), 
+                                    0 );
+            var world = cam.ScreenToWorldPoint(vec);
             var local = grid.WorldToLocal(world);
             var end = grid.LocalToCell(local);
 

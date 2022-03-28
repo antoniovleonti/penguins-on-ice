@@ -7,22 +7,32 @@ public class Auctioneer : MonoBehaviour
 {
 
     public int PlayerCount;
-    int[] CurrentBids;
-    BinaryHeap<int,int> bidQ;
-    float RemainingSeconds;
-    RoundManager manager;
+    public int[] CurrentBids;
+    BinaryHeap<(int,int),int> bidQ;
+    float RemainingSeconds = 30f;
+    public RoundManager manager;
+    AuctionInput input;
+    AuctionUIRenderer ui;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        bidQ = new BinaryHeap<int,int>(PriorityQueueType.Minimum);
+        Debug.Log("auctioneer created!");
         manager = gameObject.GetComponent<RoundManager>();
+
+        ui = gameObject.GetComponent<AuctionUIRenderer>(); 
+        input = gameObject.AddComponent<AuctionInput>();
+
+        PlayerCount = input.PlayerCount;
+        CurrentBids = new int[PlayerCount];
+        bidQ = new BinaryHeap<(int,int),int>(PriorityQueueType.Minimum);
     }
-    public void Init(int playerCount, float startingTime)
+    void OnDestroy()
     {
-        PlayerCount = playerCount;
-        RemainingSeconds = startingTime;
+        Debug.Log("auctioneer destroyed!");
+        // if we aren't auctioning, we don't want auction-related input
+        GameObject.Destroy(input);
     }
 
     // Update is called once per frame
@@ -32,6 +42,7 @@ public class Auctioneer : MonoBehaviour
         {
             // a bid has been made; start the countdown.
             RemainingSeconds -= Time.deltaTime;
+            ui.RefreshTime(RemainingSeconds);
         }
         if (RemainingSeconds <= 0) 
         {
@@ -41,9 +52,11 @@ public class Auctioneer : MonoBehaviour
 
     public void AddPlayerBid(int player, int bid)
     {
-        if (bid < CurrentBids[player]) return;
+        int current = CurrentBids[player];
+        if (current > 0 && bid >= current) return;
         // update bid
         CurrentBids[player] = bid;
-        bidQ.Enqueue(player,bid); // add player to queue
+        bidQ.Enqueue((player,bid),bid); // add player to queue
+        ui.RefreshBids(CurrentBids);
     }
 }
