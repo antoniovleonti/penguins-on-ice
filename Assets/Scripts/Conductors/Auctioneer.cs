@@ -9,16 +9,20 @@ public class Auctioneer : MonoBehaviour
     public int PlayerCount;
     public int[] CurrentBids;
     BinaryHeap<(int,int),int> bidQ;
-    float RemainingSeconds = 30f;
+    //float RemainingSeconds = 30f;
+    float RemainingSeconds = 5f;
     public RoundManager manager;
     AuctionInput input;
     AuctionUIRenderer ui;
 
+    void Awake()
+    {
+        bidQ = new BinaryHeap<(int,int),int>(PriorityQueueType.Minimum);
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("auctioneer created!");
         manager = gameObject.GetComponent<RoundManager>();
 
         ui = gameObject.GetComponent<AuctionUIRenderer>(); 
@@ -26,11 +30,12 @@ public class Auctioneer : MonoBehaviour
 
         PlayerCount = input.PlayerCount;
         CurrentBids = new int[PlayerCount];
-        bidQ = new BinaryHeap<(int,int),int>(PriorityQueueType.Minimum);
+
+        ui.RefreshBids(CurrentBids);
+        ui.RefreshTime(RemainingSeconds);
     }
     void OnDestroy()
     {
-        Debug.Log("auctioneer destroyed!");
         // if we aren't auctioning, we don't want auction-related input
         GameObject.Destroy(input);
     }

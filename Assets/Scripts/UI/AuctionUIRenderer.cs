@@ -26,7 +26,6 @@ public class AuctionUIRenderer : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f;
 
         trackers = new List<PlayerTracker>();
-
     }
 
     // Update is called once per frame
@@ -52,13 +51,19 @@ public class AuctionUIRenderer : MonoBehaviour
     public void RefreshTickers(int[] tickers)
     {
         for (int i = 0; i < trackers.Count; i++)
-            trackers[i].Ticker = tickers[i].ToString();
+        {
+            string s = tickers[i]==0 ? "*" : tickers[i].ToString();
+            trackers[i].Ticker = s;
+        }
     }
 
     public void RefreshBids(int[] bids)
     {
         for (int i = 0; i < trackers.Count; i++)
-            trackers[i].Bid = bids[i].ToString();
+        {
+            string s = bids[i]==0 ? "*" : bids[i].ToString();
+            trackers[i].Bid = s;
+        }
     }
 
     public void Init(int playerCount) 
@@ -88,6 +93,7 @@ public class AuctionUIRenderer : MonoBehaviour
         clockXform.anchoredPosition = clockPos;
         //
         clock = new ClockDisplay(clockGO);
+        
     }
 
     private void eraseUI()

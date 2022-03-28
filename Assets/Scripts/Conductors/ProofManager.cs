@@ -19,6 +19,7 @@ public class ProofManager : MonoBehaviour
         bRenderer = gameObject.GetComponent<BoardRenderer>();
         manager = gameObject.GetComponent<RoundManager>();
         input = gameObject.AddComponent<ProofInput>();
+        hasTried = new bool[64];
     }
 
     void Start()
@@ -27,7 +28,7 @@ public class ProofManager : MonoBehaviour
     }
     void OnDestroy()
     {
-        Destroy(input);
+        input.enabled = false;
     }
     public void Init(Board board_, BinaryHeap<(int,int),int> bidQ_)
     {
@@ -62,13 +63,10 @@ public class ProofManager : MonoBehaviour
     {
         if (!board.IsValidMove(startY,startX,dY,dX)) 
         {
-            Debug.Log("Invalid move");
             return;
         }
         // calculate move dest and animate it
         int y,x; (y,x) = board.CalculateMove(startY,startX, dY,dX);
-        Debug.Log((x,y));
-        Debug.Log(board.MoveCount);
         // TODO: bRenderer.AnimateMove()
 
         bool didWin = board.MakeMove(startY,startX,dY,dX);

@@ -8,11 +8,15 @@ public class PBoardBuilder : Board
 {
     // inherits all properties of Board
     public int[,] TargetCells;
-    public int TargetCount;
+    public int TargetCount
+    {
+        get { return TargetCells.GetLength(0); }
+    }
     private bool[,] taken; // used to generate board and track free spaces
     private int[,,] shortestPathTrees;
     private int nPenguins;
-    private static System.Random rnd = new System.Random(); 
+    static System.Random rnd = new System.Random(); 
+    int targetIdx;
 
     // default board config
     public PBoardBuilder () : this (8, 4, 4) { }
@@ -28,7 +32,7 @@ public class PBoardBuilder : Board
         nPenguins = nPenguins_;
         taken = new bool[RowCells, ColumnCells];
         TargetCells = new int[quadLWalls*4,2];
-        TargetCount = 0;
+        targetIdx = 0;
         shortestPathTrees = new int[nPenguins, RowCells, ColumnCells];
 
         // create outside edges
@@ -67,14 +71,14 @@ public class PBoardBuilder : Board
     {
         // will be sorted according to distance
         int[][] idx = new int[nPenguins][];
-        for (int i = 0; i < nPenguins; i++) idx[i] = new int[TargetCount];
+        for (int i = 0; i < nPenguins; i++) idx[i] = new int[targetIdx];
 
         // create an array of target IDs for each penguin that is sorted
         // by how difficult it is for that penguin to get to that target
         for (int p = 0; p < nPenguins; p++)
         {
-            int[] dist = new int[TargetCount];
-            for (int t = 0; t < TargetCount; t++)
+            int[] dist = new int[targetIdx];
+            for (int t = 0; t < targetIdx; t++)
             {
                 idx[p][t] = t;
                 int y = TargetCells[t,0], x = TargetCells[t,1];
@@ -82,13 +86,13 @@ public class PBoardBuilder : Board
                 dist[t] = shortestPathTrees[p,y,x];
             }
             // sort indices by distance from this penguin to that target
-            Array.Sort(dist,idx[p],0,TargetCount,null);
+            Array.Sort(dist,idx[p],0,targetIdx,null);
         }
         // now 'draft' all targets to the robot which is furthest from it
-        bool[] allocated = new bool[TargetCount]; // has this target been used yet?
-        for (int p=0,n=0; n < TargetCount; p=(p+1)%nPenguins,n++)
+        bool[] allocated = new bool[targetIdx]; // has this target been used yet?
+        for (int p=0,n=0; n < targetIdx; p=(p+1)%nPenguins,n++)
         {
-            for (int t = TargetCount-1; t >= 0; t--)
+            for (int t = targetIdx-1; t >= 0; t--)
             {
                 // grab the most difficult target to reach for this penguin 
                 // (which isn't already assigned to another penguin)
@@ -320,9 +324,9 @@ public class PBoardBuilder : Board
                         Obstacles[Y + cY - i*cY, X + cX] = 1;
 
                 // note this so we can put a target here eventually
-                TargetCells[TargetCount,0] = y;
-                TargetCells[TargetCount,1] = x;
-                TargetCount++;
+                TargetCells[targetIdx,0] = y;
+                TargetCells[targetIdx,1] = x;
+                targetIdx++;
                 wallCount++;
                 // also mark it in the Targets array with a temp '-1' for quick lookup
                 Targets[Y,X] = -1;
@@ -359,7 +363,7 @@ public class PBoardBuilder : Board
         int height = arr.GetLength(0);
         int width = arr.GetLength(1);
 
-        for (int i = 0; i < width; ++i)
+        for (int i = 0; i < height; ++i)
         {
             int randomRow = rnd.Next(i, height);
             for (int j = 0; j < width; ++j)

@@ -36,6 +36,7 @@ public class PBoardViewer
     }
     public bool GetNextBoard()
     {
+
         if (currentTarget == boardBuilder.TargetCount) return false;
         int[,] currentTargetArr = new int[boardBuilder.Columns,boardBuilder.Rows];
 
@@ -44,9 +45,10 @@ public class PBoardViewer
         int I = Board.CellToCoord(i), J = Board.CellToCoord(j);
 
         currentTargetArr[I,J] = boardBuilder.Targets[I,J];
-        currentTarget++;
+        Debug.Log("current target: " + currentTarget);
 
         CurrentBoard = new Board(boardBuilder.Obstacles, boardBuilder.Penguins, currentTargetArr);
+        currentTarget++;
         return true;
     }
 }
