@@ -14,16 +14,17 @@ public class AuctionUIRenderer : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        // make a new gameobject, add canvas and canvas scaler components
         uiParent = new GameObject("ui canvas", typeof(Canvas), typeof(CanvasScaler));
         uiParent.transform.SetParent(gameObject.transform);
 
         var canvas = uiParent.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceCamera;
-        canvas.worldCamera = Camera.main;
+        canvas.renderMode = RenderMode.ScreenSpaceCamera; // snap to camera
+        canvas.worldCamera = Camera.main; // ... the main camera
 
         var scaler = uiParent.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.matchWidthOrHeight = 0.5f;
+        scaler.matchWidthOrHeight = 0.5f; // width and height are weighted equally
 
         trackers = new List<PlayerTracker>();
     }
@@ -52,6 +53,7 @@ public class AuctionUIRenderer : MonoBehaviour
     {
         for (int i = 0; i < trackers.Count; i++)
         {
+            // you can't bid zero so replace 0 with another char
             string s = tickers[i]==0 ? "*" : tickers[i].ToString();
             trackers[i].Ticker = s;
         }
@@ -61,6 +63,7 @@ public class AuctionUIRenderer : MonoBehaviour
     {
         for (int i = 0; i < trackers.Count; i++)
         {
+            // zero means no bid
             string s = bids[i]==0 ? "*" : bids[i].ToString();
             trackers[i].Bid = s;
         }
@@ -69,7 +72,7 @@ public class AuctionUIRenderer : MonoBehaviour
     public void Init(int playerCount) 
     {
         eraseUI(); // start clean
-        float gap = 20f;
+        float gap = 20f; // space between trackers
         var prefabXform = TrackerPrefab.GetComponent<RectTransform>();
         float trackerWidth = prefabXform.rect.width * prefabXform.transform.localScale.x;
         float leftx = - (playerCount * trackerWidth/2 + (playerCount-1) * gap) / 2;

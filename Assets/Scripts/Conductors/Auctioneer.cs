@@ -9,8 +9,7 @@ public class Auctioneer : MonoBehaviour
     public int PlayerCount;
     public int[] CurrentBids;
     BinaryHeap<(int,int),int> bidQ;
-    //float RemainingSeconds = 30f;
-    float RemainingSeconds = 5f;
+    float RemainingSeconds = 90f;
     public RoundManager manager;
     AuctionInput input;
     AuctionUIRenderer ui;
@@ -37,7 +36,7 @@ public class Auctioneer : MonoBehaviour
     void OnDestroy()
     {
         // if we aren't auctioning, we don't want auction-related input
-        GameObject.Destroy(input);
+        Destroy(input);
     }
 
     // Update is called once per frame

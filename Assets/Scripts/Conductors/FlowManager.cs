@@ -10,12 +10,16 @@ public class FlowManager : MonoBehaviour
     public int[] PlayerScores;
     RoundManager round = null;
     AuctionUIRenderer ui;
-    void Start()
+
+    void Awake() // called when script is loaded
     {
         ui = gameObject.GetComponent<AuctionUIRenderer>();
-        ui.Init(Gamepad.all.Count);
-        boards = new PBoardViewer(5,1,2);
+        boards = new PBoardViewer();
         PlayerScores = new int[64];
+    }
+    void Start() // right before first frame update
+    {
+        ui.Init(Gamepad.all.Count);
         StartNextRound(-1);
     }
 
@@ -27,21 +31,20 @@ public class FlowManager : MonoBehaviour
 
     public void StartNextRound(int winner)
     {
-        if (winner != -1) 
+        if (winner != -1) // -1 == no winner
         {
             PlayerScores[winner]++;
-            Debug.Log("winner's score: "+PlayerScores[winner]);
             ui.RefreshWins(PlayerScores);
         }
-        Destroy(round);
+        Destroy(round); // this round manager has done its job.
 
         if (!boards.GetNextBoard()) 
         {
             // end of game logic here
-            Debug.Log("no more targets to show");
+            // TODO: go to scoreboard
             return;
         }
-
+        // if we successfully got another board, start the next round
         round = gameObject.AddComponent<RoundManager>();
         round.Init(boards.CurrentBoard);
     }

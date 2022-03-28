@@ -16,10 +16,11 @@ public class RoundManager : MonoBehaviour
     {
         bRenderer = gameObject.GetComponent<BoardRenderer>();
         manager = gameObject.GetComponent<FlowManager>();
+
+        StartAuction();
     }
     void Start()
     {
-        StartAuction();
     }
     public void Init(Board board_)
     {
