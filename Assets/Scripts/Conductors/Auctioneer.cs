@@ -9,7 +9,7 @@ public class Auctioneer : MonoBehaviour
     public int PlayerCount;
     public int[] CurrentBids;
     BinaryHeap<(int,int),int> bidQ;
-    float RemainingSeconds = 90f;
+    float RemainingSeconds = 10f;
     public RoundManager manager;
     AuctionInput input;
     AuctionUIRenderer ui;
@@ -50,7 +50,10 @@ public class Auctioneer : MonoBehaviour
         }
         if (RemainingSeconds <= 0) 
         {
-            manager.StartProofs(bidQ);
+            //manager.StartProofs(bidQ);
+            // this is more reliable
+            BroadcastMessage("EndAuction", bidQ);
+            Destroy(this);
         }
     }
 

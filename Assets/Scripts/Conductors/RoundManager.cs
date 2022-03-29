@@ -37,15 +37,13 @@ public class RoundManager : MonoBehaviour
     {
         auctioneer = gameObject.AddComponent<Auctioneer>();
     }
-    public void StartProofs(BinaryHeap<(int,int),int> bidQ)
+    public void EndAuction(BinaryHeap<(int,int),int> bidQ)
     {
-        Destroy(auctioneer);
         proofs = gameObject.AddComponent<ProofManager>();
         proofs.Init(board, bidQ);
     }
-    public void FinishProofs(int winner) // winner can be -1 if no winner
+    public void EndRound()
     {
-        Destroy(proofs);
-        manager.StartNextRound(winner);
+        Destroy(this);
     }
 }

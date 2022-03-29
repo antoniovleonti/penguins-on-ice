@@ -50,7 +50,8 @@ public class ProofManager : MonoBehaviour
         {
             if (bidQ.Count == 0) 
             {
-                manager.FinishProofs(-1);
+                BroadcastMessage("EndProofs", -1);
+                Destroy(this);
                 break;
             }
 
@@ -73,8 +74,10 @@ public class ProofManager : MonoBehaviour
         if (didWin) 
         {
             if (board.MoveCount == currentBid)
-                manager.FinishProofs(currentPlayer);
-            // winning logic: probably just letting manager know the winner
+            {
+                BroadcastMessage("EndProofs", currentPlayer);
+                Destroy(this);
+            }
             else nextBid();
         }
         else if (board.MoveCount >= currentBid)

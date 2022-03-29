@@ -20,7 +20,7 @@ public class FlowManager : MonoBehaviour
     void Start() // right before first frame update
     {
         ui.Init(Gamepad.all.Count);
-        StartNextRound(-1);
+        StartNextRound();
     }
 
     // Update is called once per frame
@@ -29,15 +29,8 @@ public class FlowManager : MonoBehaviour
         
     }
 
-    public void StartNextRound(int winner)
+    public void StartNextRound()
     {
-        if (winner != -1) // -1 == no winner
-        {
-            PlayerScores[winner]++;
-            ui.RefreshWins(PlayerScores);
-        }
-        Destroy(round); // this round manager has done its job.
-
         if (!boards.GetNextBoard()) 
         {
             // end of game logic here
@@ -46,6 +39,18 @@ public class FlowManager : MonoBehaviour
         }
         // if we successfully got another board, start the next round
         round = gameObject.AddComponent<RoundManager>();
+        Debug.Log(round);
         round.Init(boards.CurrentBoard);
+    }
+    public void EndProofs(int winner)
+    {
+        if (winner != -1) // -1 == no winner
+        {
+            PlayerScores[winner]++;
+            ui.RefreshWins(PlayerScores);
+        }
+        BroadcastMessage("EndRound");
+
+        StartNextRound();
     }
 }
