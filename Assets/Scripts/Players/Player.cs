@@ -22,4 +22,24 @@ public class Player
         CurrentBid = currentBid;
         Input = input;
     }
+
+    public bool UpdateTicker()
+    {
+        if (Input["tickerUp"].triggered)
+        {
+            int bid = auctioneer.CurrentBids[i];
+            tickers[i] += bid==0 || tickers[i]<bid-1 ? 1 : 0;
+            wasUpdated = true;
+        }
+        if (gamepads[i].dpad.down.wasPressedThisFrame)
+        {
+            tickers[i] -= tickers[i] > 1 ? 1 : 0;
+            wasUpdated = true;
+        }
+        if (gamepads[i].buttonEast.wasPressedThisFrame)
+        {
+            tickers[i] = 0;
+            wasUpdated = true;
+        }
+    }
 }
