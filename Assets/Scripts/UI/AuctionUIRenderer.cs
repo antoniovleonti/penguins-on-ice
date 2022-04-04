@@ -49,24 +49,32 @@ public class AuctionUIRenderer : MonoBehaviour
             trackers[i].Wins = wins[i].ToString();
     }
 
-    public void RefreshTickers(int[] tickers)
+    public void RefreshTickerValues(int[] tickers)
     {
         for (int i = 0; i < trackers.Count; i++)
         {
             // you can't bid zero so replace 0 with another char
             string s = tickers[i]==0 ? "*" : tickers[i].ToString();
-            trackers[i].Ticker = s;
+            trackers[i].TickerValue = s;
         }
     }
 
-    public void RefreshBids(int[] bids)
+    public void RefreshCurrentBids(int[] bids)
     {
         for (int i = 0; i < trackers.Count; i++)
         {
             // zero means no bid
             string s = bids[i]==0 ? "*" : bids[i].ToString();
-            trackers[i].Bid = s;
+            trackers[i].CurrentBid = s;
         }
+    }
+
+    public void RefreshPlayer(int player, Player info)
+    {
+        trackers[player].Wins = info.Wins.ToString();
+        trackers[player].TickerValue = info.TickerValue.ToString();
+        trackers[player].CurrentBid = info.CurrentBid.ToString();
+        trackers[player].Name = info.Name;
     }
 
     public void Init(int playerCount) 
@@ -128,12 +136,12 @@ class PlayerTracker
         get { return getChildTextField("WINS").text; }
         set { getChildTextField("WINS").text = value; }
     }
-    public string Ticker
+    public string TickerValue
     {
         get { return getChildTextField("TICKER").text; }
         set { getChildTextField("TICKER").text = value; }
     }
-    public string Bid
+    public string CurrentBid
     {
         get { return getChildTextField("BID").text; }
         set { getChildTextField("BID").text = value; }

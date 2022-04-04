@@ -27,10 +27,6 @@ public class Auctioneer : MonoBehaviour
         ui = gameObject.GetComponent<AuctionUIRenderer>(); 
         input = gameObject.AddComponent<AuctionInput>();
 
-        PlayerCount = input.PlayerCount;
-        CurrentBids = new int[PlayerCount];
-
-        ui.RefreshBids(CurrentBids);
         ui.RefreshTime(RemainingSeconds);
     }
     void OnDestroy()
@@ -64,6 +60,5 @@ public class Auctioneer : MonoBehaviour
         // update bid
         CurrentBids[player] = bid;
         bidQ.Enqueue((player,bid),bid); // add player to queue
-        ui.RefreshBids(CurrentBids);
     }
 }

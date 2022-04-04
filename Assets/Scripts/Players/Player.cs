@@ -23,23 +23,36 @@ public class Player
         Input = input;
     }
 
-    public bool UpdateTicker()
+    public bool PollTicker()
     {
+        bool wasUpdated = false;
         if (Input["tickerUp"].triggered)
         {
-            int bid = auctioneer.CurrentBids[i];
-            tickers[i] += bid==0 || tickers[i]<bid-1 ? 1 : 0;
+            int bid = CurrentBid;
+            TickerValue += bid==0 || TickerValue<bid-1 ? 1 : 0;
             wasUpdated = true;
         }
-        if (gamepads[i].dpad.down.wasPressedThisFrame)
+        if (Input["tickerDown"].triggered)
         {
-            tickers[i] -= tickers[i] > 1 ? 1 : 0;
+            TickerValue -= TickerValue > 1 ? 1 : 0;
             wasUpdated = true;
         }
-        if (gamepads[i].buttonEast.wasPressedThisFrame)
+        if (Input["tickerReset"].triggered)
         {
-            tickers[i] = 0;
+            TickerValue = 0;
             wasUpdated = true;
         }
+        return wasUpdated;
+    }
+
+    public int PollForBid()
+    {
+        int prev = TickerValue;
+        if (Input["PlaceBid"].triggered && TickerValue > 0)
+        {
+            TickerValue = 0;
+            return prev;
+        }
+        return -1;
     }
 }

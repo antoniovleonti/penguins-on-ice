@@ -5,8 +5,14 @@ using UnityEngine.InputSystem;
 
 public class PlayerManager : MonoBehaviour
 {
+  public int PlayerCount
+  {
+    get { return Players.Count; }
+  }
   public List<Player> Players = new List<Player>();
-  private HashSet<Gamepad> registeredGamepads = new HashSet<Gamepad>();
+  HashSet<Gamepad> registeredGamepads = new HashSet<Gamepad>();
+  AuctionUIRenderer ui;
+
   bool kbLeftRegistered = false;
   bool kbRightRegistered = false;
   float lastLPress = 0; // time since last time l was pressed
@@ -14,7 +20,7 @@ public class PlayerManager : MonoBehaviour
 
   void Awake()
   {
-
+    ui = gameObject.GetComponent<AuctionUIRenderer>();
   }
 
   void Update()
@@ -38,13 +44,28 @@ public class PlayerManager : MonoBehaviour
     foreach (var p in Players) Debug.Log(p.Name);
   }
 
-  bool UpdateTickers ()
+  public void PollTickers ()
   {
-    bool wasUpdated = false;
     for (int i = 0; i < PlayerCount; i++)
     {
+      if (Players[i].PollTicker())
+      {
+        ui.RefreshPlayer(i, Players[i]);
+      }
     }
-    return wasUpdated;
+  }
+
+  public void PollForBids (Auctioneer auc)
+  {
+    for (int i = 0; i < PlayerCount; i++)
+    {
+      var bid = Players[i].PollForBid();
+      if (bid != -1)
+      {
+        auc.AddPlayerBid(i, bid);
+        ui.RefreshPlayer(i, Players[i]);
+      }
+    }
   }
 
   public void RegisterNewGamepads()
