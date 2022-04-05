@@ -25,14 +25,15 @@ public class Auctioneer : MonoBehaviour
         manager = gameObject.GetComponent<RoundManager>();
 
         ui = gameObject.GetComponent<AuctionUIRenderer>(); 
-        input = gameObject.AddComponent<AuctionInput>();
+        input = gameObject.GetComponent<AuctionInput>();
+        input.enabled = true;
 
         ui.RefreshTime(RemainingSeconds);
     }
     void OnDestroy()
     {
         // if we aren't auctioning, we don't want auction-related input
-        Destroy(input);
+        input.enabled = false;
     }
 
     // Update is called once per frame
@@ -55,10 +56,7 @@ public class Auctioneer : MonoBehaviour
 
     public void AddPlayerBid(int player, int bid)
     {
-        int current = CurrentBids[player];
-        if (current > 0 && bid >= current) return;
         // update bid
-        CurrentBids[player] = bid;
         bidQ.Enqueue((player,bid),bid); // add player to queue
     }
 }

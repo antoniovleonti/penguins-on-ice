@@ -23,7 +23,7 @@ public class Player
         Input = input;
     }
 
-    public bool PollTicker()
+    public bool PollTicker ()
     {
         bool wasUpdated = false;
         if (Input["tickerUp"].triggered)
@@ -34,7 +34,7 @@ public class Player
         }
         if (Input["tickerDown"].triggered)
         {
-            TickerValue -= TickerValue > 1 ? 1 : 0;
+            TickerValue -= TickerValue >= 1 ? 1 : 0;
             wasUpdated = true;
         }
         if (Input["tickerReset"].triggered)
@@ -45,11 +45,12 @@ public class Player
         return wasUpdated;
     }
 
-    public int PollForBid()
+    public int PollForBid ()
     {
         int prev = TickerValue;
         if (Input["PlaceBid"].triggered && TickerValue > 0)
         {
+            CurrentBid = TickerValue;
             TickerValue = 0;
             return prev;
         }

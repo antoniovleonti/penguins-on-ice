@@ -21,11 +21,15 @@ public class AuctionInput : MonoBehaviour
         // this is what we will inform of player actions
         auctioneer = gameObject.GetComponent<Auctioneer>();
     }
+    void OnEnable ()
+    {
+        auctioneer = gameObject.GetComponent<Auctioneer>();
+    }
 
     // Update is called once per frame
     void Update()
     {
         pm.PollTickers();
-        pm.PollForBids(auctioneer);
+        pm.PollForBids();
     }
 }

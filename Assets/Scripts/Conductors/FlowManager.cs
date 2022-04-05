@@ -8,18 +8,19 @@ public class FlowManager : MonoBehaviour
     // Start is called before the first frame update
     PBoardViewer boards;
     public int[] PlayerScores;
+    PlayerManager pm;
     RoundManager round = null;
     AuctionUIRenderer ui;
 
     void Awake() // called when script is loaded
     {
         ui = gameObject.GetComponent<AuctionUIRenderer>();
+        pm = gameObject.GetComponent<PlayerManager>();
         boards = new PBoardViewer();
         PlayerScores = new int[64];
     }
     void Start() // right before first frame update
     {
-        ui.Init(Gamepad.all.Count);
         StartNextRound();
     }
 
@@ -46,7 +47,7 @@ public class FlowManager : MonoBehaviour
     {
         if (winner != -1) // -1 == no winner
         {
-            PlayerScores[winner]++;
+            pm.Players[winner].Wins++;
             ui.RefreshWins(PlayerScores);
         }
         BroadcastMessage("EndRound");

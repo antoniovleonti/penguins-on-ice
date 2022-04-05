@@ -218,6 +218,9 @@ GameObject:
   - component: {fileID: 1193036757}
   - component: {fileID: 1193036756}
   - component: {fileID: 1193036758}
+  - component: {fileID: 1193036759}
+  - component: {fileID: 1193036762}
+  - component: {fileID: 1193036761}
   m_Layer: 0
   m_Name: MANAGER
   m_TagString: Untagged
@@ -280,6 +283,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TrackerPrefab: {fileID: 3204796022339014432, guid: 0676803b7a67349d7bd552cc1e316735, type: 3}
   ClockPrefab: {fileID: 7314665558392581267, guid: 637131bc37772238c8b3d5924790607e, type: 3}
+--- !u!114 &1193036759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1193036755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cefe0084e0baefbc5b1788049310f0b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1193036760
 Transform:
   m_ObjectHideFlags: 0
@@ -294,6 +309,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1193036761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1193036755}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f3ca0db0669a705daddc1b92aef527c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1193036762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1193036755}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31e44d2de06c74afe8f5154ffa8ee1e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1890666518
 GameObject:
   m_ObjectHideFlags: 0

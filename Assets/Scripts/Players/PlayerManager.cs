@@ -10,6 +10,7 @@ public class PlayerManager : MonoBehaviour
     get { return Players.Count; }
   }
   public List<Player> Players = new List<Player>();
+
   HashSet<Gamepad> registeredGamepads = new HashSet<Gamepad>();
   AuctionUIRenderer ui;
 
@@ -40,8 +41,17 @@ public class PlayerManager : MonoBehaviour
       if (lastDPress <= 0.25f) RegisterKBLeft();
       lastDPress = 0;
     }
+  }
 
-    foreach (var p in Players) Debug.Log(p.Name);
+  void EndRound ()
+  {
+    for (int i = 0; i < PlayerCount; i++)
+    {
+      var p = Players[i];
+      p.CurrentBid = 0;
+      p.TickerValue = 0;
+      ui.RefreshPlayer(i,p);
+    }
   }
 
   public void PollTickers ()
@@ -55,8 +65,9 @@ public class PlayerManager : MonoBehaviour
     }
   }
 
-  public void PollForBids (Auctioneer auc)
+  public void PollForBids ()
   {
+    var auc = gameObject.GetComponent<Auctioneer>();
     for (int i = 0; i < PlayerCount; i++)
     {
       var bid = Players[i].PollForBid();
@@ -125,7 +136,11 @@ public class PlayerManager : MonoBehaviour
     
     if (device != null) input.devices = new InputDevice[] { device }; 
 
-    string name = "Player " + (Players.Count + 1);
-    Players.Add(new Player(name, 0, 0, 0, input));
+    string name = "Player " + (PlayerCount + 1);
+    var p = new Player(name, 0, 0, 0, input);
+    Players.Add(p);
+    Debug.Log(PlayerCount-1);
+    ui.AddTracker();
+    ui.RefreshPlayer(PlayerCount-1, p);
   }
 }

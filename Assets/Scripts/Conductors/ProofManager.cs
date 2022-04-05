@@ -18,12 +18,13 @@ public class ProofManager : MonoBehaviour
     {
         bRenderer = gameObject.GetComponent<BoardRenderer>();
         manager = gameObject.GetComponent<RoundManager>();
-        input = gameObject.AddComponent<ProofInput>();
+        input = gameObject.GetComponent<ProofInput>();
         hasTried = new bool[64];
     }
 
     void Start()
     {
+        input.enabled = true;
         nextBid();
     }
     void OnDestroy()
@@ -48,6 +49,7 @@ public class ProofManager : MonoBehaviour
         bool first = true;
         while (first || hasTried[currentPlayer])
         {
+            Debug.Log((first, hasTried[currentPlayer]));
             if (bidQ.Count == 0) 
             {
                 BroadcastMessage("EndProofs", -1);
@@ -58,6 +60,7 @@ public class ProofManager : MonoBehaviour
             (currentPlayer, currentBid) = bidQ.Dequeue();
             first = false;
         }
+        hasTried[currentPlayer] = true;
         Debug.Log("Current bid: player " + currentPlayer + " for " + currentBid);
     }
     public void TryMove(int startY, int startX, int dY, int dX)

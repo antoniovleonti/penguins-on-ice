@@ -15,6 +15,10 @@ public class ProofInput : MonoBehaviour
     {
         grid = gameObject.GetComponent<Grid>();
         cam = Camera.main; 
+    }
+    void OnEnable()
+    {
+        // this is where the result of player input goes
         manager = gameObject.GetComponent<ProofManager>();
     }
 

@@ -11,6 +11,8 @@ public class AuctionUIRenderer : MonoBehaviour
     GameObject uiParent;
     List<PlayerTracker> trackers;
     ClockDisplay clock;
+    float trackerGap = 20f;
+    float trackerWidth;
     // Start is called before the first frame update
     void Awake()
     {
@@ -27,6 +29,13 @@ public class AuctionUIRenderer : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f; // width and height are weighted equally
 
         trackers = new List<PlayerTracker>();
+
+        // precompute size of trackers
+        var prefabXform = TrackerPrefab.GetComponent<RectTransform>();
+        trackerWidth = prefabXform.rect.width * prefabXform.transform.localScale.x;
+
+        // get the clock ready
+        InitClock();
     }
 
     // Update is called once per frame
@@ -77,37 +86,37 @@ public class AuctionUIRenderer : MonoBehaviour
         trackers[player].Name = info.Name;
     }
 
-    public void Init(int playerCount) 
+    public void InitClock () 
     {
-        eraseUI(); // start clean
-        float gap = 20f; // space between trackers
-        var prefabXform = TrackerPrefab.GetComponent<RectTransform>();
-        float trackerWidth = prefabXform.rect.width * prefabXform.transform.localScale.x;
-        float leftx = - (playerCount * trackerWidth/2 + (playerCount-1) * gap) / 2;
-        for (int i = 0; i < playerCount; i++)
-        {
-            // add a ui element to track this player
-            var tracker = GameObject.Instantiate(TrackerPrefab, uiParent.transform);
-            var xform = tracker.GetComponent<RectTransform>();
-            // anchor is set up in the prefab already, just need to position
-            var pos = new Vector2(leftx + i * (trackerWidth + gap), 30f);
-            xform.anchoredPosition = pos;
-
-            trackers.Add(new PlayerTracker(tracker));
-            trackers[i].Name = "Player " + (i+1);
-        }
-        // set up the clock
-        var clockGO = GameObject.Instantiate(ClockPrefab, uiParent.transform);
-        var clockXform = clockGO.GetComponent<RectTransform>();
+        var go = GameObject.Instantiate(ClockPrefab, uiParent.transform);
+        var xform = go.GetComponent<RectTransform>();
         // anchor is set up in the prefab already, just need to position
-        var clockPos = new Vector2(0, -20f);
-        clockXform.anchoredPosition = clockPos;
+        xform.anchoredPosition = new Vector2(0, -20f);
         //
-        clock = new ClockDisplay(clockGO);
-        
+        clock = new ClockDisplay(go);
     }
 
-    private void eraseUI()
+    public void AddTracker ()
+    {
+        var count = trackers.Count;
+        float leftx = -((count) * trackerWidth + count * trackerGap) / 2;
+        Debug.Log(leftx);
+        
+        // reposition existing trackers
+        for (int i = 0; i < count; i++)
+        {
+            var pos = new Vector2(leftx + i * (trackerWidth + trackerGap), 30f);
+            trackers[i].Pos = pos;
+        }
+        // make a new one for player p
+        var newTracker = GameObject.Instantiate(TrackerPrefab, uiParent.transform);
+        trackers.Add(new PlayerTracker(newTracker));
+
+        var pos_ = new Vector2(leftx + count * (trackerWidth + trackerGap), 30f);
+        trackers[count].Pos = pos_;
+    }
+
+    private void eraseUI ()
     {
         // delete all children of the parent game object
         int n = uiParent.transform.childCount;
@@ -146,12 +155,18 @@ class PlayerTracker
         get { return getChildTextField("BID").text; }
         set { getChildTextField("BID").text = value; }
     }
+    public Vector2 Pos
+    {
+        get { return go.GetComponent<RectTransform>().anchoredPosition; }
+        set { go.GetComponent<RectTransform>().anchoredPosition = value; }
+    }
     private TextMeshProUGUI getChildTextField(string childName)
     {
 
         GameObject child = go.transform.Find(childName).gameObject;
         return child.GetComponent<TextMeshProUGUI>();
     }
+
 }
 
 class ClockDisplay
