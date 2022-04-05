@@ -13,6 +13,7 @@ public class ProofManager : MonoBehaviour
     RoundManager manager;
     int currentBid;
     int currentPlayer;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -49,7 +50,6 @@ public class ProofManager : MonoBehaviour
         bool first = true;
         while (first || hasTried[currentPlayer])
         {
-            Debug.Log((first, hasTried[currentPlayer]));
             if (bidQ.Count == 0) 
             {
                 BroadcastMessage("EndProofs", -1);
@@ -69,11 +69,19 @@ public class ProofManager : MonoBehaviour
         {
             return;
         }
+        StartCoroutine(MakeMove(startY,startX,dY,dX));
+    }
+    IEnumerator MakeMove (int startY, int startX, int dY, int dX)
+    {
         // calculate move dest and animate it
-        int y,x; (y,x) = board.CalculateMove(startY,startX, dY,dX);
+        int endY,endX; (endY,endX) = board.CalculateMove(startY,startX, dY,dX);
         // TODO: bRenderer.AnimateMove()
 
         bool didWin = board.MakeMove(startY,startX,dY,dX);
+        // animate the move and WAIT until it's done.
+        yield return StartCoroutine(
+            bRenderer.AnimThenRedraw(startY,endY,startX,endX,board));
+
         if (didWin) 
         {
             if (board.MoveCount == currentBid)
@@ -87,6 +95,5 @@ public class ProofManager : MonoBehaviour
         {
             nextBid();
         }
-        else bRenderer.Redraw(board);
     }
 }

@@ -20,23 +20,24 @@ public class BoardRenderer : MonoBehaviour
     public float WallWidth = 0.1f;
 
     // these are generated programmatically from the TexArrs
-    private Sprite[] tileSprites; 
-    private Sprite penguinFGSprite;
-    private Sprite penguinBGSprite;
-    private Sprite targetBGSprite;
-    private Sprite targetFGSprite;
+    Sprite[] tileSprites; 
+    Sprite penguinFGSprite;
+    Sprite penguinBGSprite;
+    Sprite targetBGSprite;
+    Sprite targetFGSprite;
 
-    private float tileScale; // size of sprite in world-space
-    private float penguinBGScale; // size of sprite in world-space
-    private float penguinFGScale; // size of sprite in world-space
-    private float targetBGScale; // size of sprite in world-space
-    private float targetFGScale; // size of sprite in world-space
+    float tileScale; // size of sprite in world-space
+    float penguinBGScale; // size of sprite in world-space
+    float penguinFGScale; // size of sprite in world-space
+    float targetBGScale; // size of sprite in world-space
+    float targetFGScale; // size of sprite in world-space
 
+    GameObject tiles; // parent object to all board display objects
+    GameObject penguins;
+    GameObject walls;
+    GameObject targets;
 
-    private GameObject tiles; // parent object to all board display objects
-    private GameObject penguins;
-    private GameObject walls;
-    private GameObject targets;
+    GameObject[,] penguinsGObjs;
 
     private Grid grid; // gameobject addon to make grid calculations easier
     private Camera cam;
@@ -109,11 +110,38 @@ public class BoardRenderer : MonoBehaviour
 
     }
 
-    // Update is called once per frame
-    void Update()
+    public IEnumerator AnimThenRedraw ( int colStart,
+                                        int colEnd,
+                                        int rowStart,
+                                        int rowEnd,
+                                        Board board)
     {
-    }
+        colStart = (colStart - 1) / 2;
+        rowStart = (rowStart - 1) / 2;
+        colEnd = (colEnd - 1) / 2;
+        rowEnd = (rowEnd - 1) / 2;
 
+        float animTime = 0.25f;
+        float elapsed = 0f;
+
+        var startCell = new Vector3Int(rowStart,-colStart,-5);
+        var endCell = new Vector3Int(rowEnd,-colEnd,-5);
+        Vector3 startCoord = grid.CellToLocal(startCell) + new Vector3(0.5f, 0.5f, 0);
+        Vector3 endCoord = grid.CellToLocal(endCell) + new Vector3(0.5f, 0.5f, 0);
+
+        while (elapsed < animTime)
+        {
+            var oldPos = penguinsGObjs[colStart,rowStart].transform.localPosition;
+            // https://chicounity3d.wordpress.com/2014/05/23/how-to-lerp-like-a-pro/
+            float t = elapsed/animTime;
+            t = t*t*t * (t * (6f*t - 15f) + 10f);
+            var newPos = Vector3.Lerp(oldPos, endCoord, t);
+            penguinsGObjs[colStart,rowStart].transform.localPosition = newPos;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        Redraw(board);
+    }
     public void Redraw(Board board)
     {
         EraseBoard();
@@ -121,7 +149,6 @@ public class BoardRenderer : MonoBehaviour
         drawWalls(board);
         drawPenguins(board);
         drawTargets(board);
-
         positionCam(board);
     }
 
@@ -219,6 +246,7 @@ public class BoardRenderer : MonoBehaviour
 
     void drawPenguins(Board board)
     {
+        penguinsGObjs = new GameObject[board.ColumnCells,board.RowCells];
         for (int i = 0; i < board.RowCells; i++)
         {
             for (int j = 0; j < board.ColumnCells; j++)
@@ -228,12 +256,13 @@ public class BoardRenderer : MonoBehaviour
 
                 // only do anything if there's a penguin here
                 if (board.Penguins[I,J] == 0) {continue;}
-
-                GameObject penguin = new GameObject("penguin @ ("+i+", "+j+")"); // create the gameobject
+                // create the gameobject
+                GameObject penguin = new GameObject("penguin @ ("+i+", "+j+")"); 
                 penguin.transform.SetParent(penguins.transform);
 
                 var cell = new Vector3Int(j, -i, -1);
-                penguin.transform.localPosition = grid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, 0);
+                var lpos = grid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, 0);
+                penguin.transform.localPosition = lpos;
 
                 // background is the silhouette of the penguin -- changes color
                 GameObject bg = new GameObject("bg");
@@ -253,6 +282,9 @@ public class BoardRenderer : MonoBehaviour
 
                 SpriteRenderer fgRenderer = (SpriteRenderer)fg.AddComponent<SpriteRenderer>();
                 fgRenderer.sprite = penguinFGSprite;
+
+                // add it to the array so we can animate later
+                penguinsGObjs[i,j] = penguin;
             }
         }
     }

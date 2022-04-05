@@ -139,7 +139,6 @@ public class PlayerManager : MonoBehaviour
     string name = "Player " + (PlayerCount + 1);
     var p = new Player(name, 0, 0, 0, input);
     Players.Add(p);
-    Debug.Log(PlayerCount-1);
     ui.AddTracker();
     ui.RefreshPlayer(PlayerCount-1, p);
   }

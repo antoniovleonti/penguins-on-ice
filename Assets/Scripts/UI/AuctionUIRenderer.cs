@@ -100,7 +100,6 @@ public class AuctionUIRenderer : MonoBehaviour
     {
         var count = trackers.Count;
         float leftx = -((count) * trackerWidth + count * trackerGap) / 2;
-        Debug.Log(leftx);
         
         // reposition existing trackers
         for (int i = 0; i < count; i++)

@@ -45,7 +45,6 @@ public class PBoardViewer
         int I = Board.CellToCoord(i), J = Board.CellToCoord(j);
 
         currentTargetArr[I,J] = boardBuilder.Targets[I,J];
-        Debug.Log("current target: " + currentTarget);
 
         CurrentBoard = new Board(boardBuilder.Obstacles, boardBuilder.Penguins, currentTargetArr);
         currentTarget++;

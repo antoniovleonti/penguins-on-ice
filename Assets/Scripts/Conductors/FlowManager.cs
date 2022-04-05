@@ -40,7 +40,6 @@ public class FlowManager : MonoBehaviour
         }
         // if we successfully got another board, start the next round
         round = gameObject.AddComponent<RoundManager>();
-        Debug.Log(round);
         round.Init(boards.CurrentBoard);
     }
     public void EndProofs(int winner)
