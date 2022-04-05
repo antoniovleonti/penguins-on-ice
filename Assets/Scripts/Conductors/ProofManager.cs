@@ -79,8 +79,10 @@ public class ProofManager : MonoBehaviour
 
         bool didWin = board.MakeMove(startY,startX,dY,dX);
         // animate the move and WAIT until it's done.
+        input.enabled = false;
         yield return StartCoroutine(
             bRenderer.AnimThenRedraw(startY,endY,startX,endX,board));
+        input.enabled = true;
 
         if (didWin) 
         {
