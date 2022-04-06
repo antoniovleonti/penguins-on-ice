@@ -5,7 +5,16 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BlitzScene.unity
     guid: fe80379bc88684677b9992a02d1c39c7
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 428cd865cfb8afa46acaf1cb2fa72d0e
+  - enabled: 1
+    path: Assets/Scenes/Multiplayer.unity
+    guid: b6e4d62d2906f4235a5e7620e1d9c66c
+  - enabled: 1
+    path: Assets/Scenes/HowToPlay.unity
+    guid: de64a47934da0d1408702fc10977496b
   m_configObjects: {}
