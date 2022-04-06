@@ -157,8 +157,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 550, y: 68.91}
-  m_SizeDelta: {x: 311.84, y: 520.35}
+  m_AnchoredPosition: {x: 543.73, y: 68.91}
+  m_SizeDelta: {x: 345.6, y: 520.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &76032907
 MonoBehaviour:
@@ -180,14 +180,20 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'When playing the main mode there are two phases per round.
+  m_text: 'The first phase is the bidding phase, where all players look at the board
+    and try to find the least amount of moves to solve the puzzles. When you have
+    found a moveset, click A on your controller. When all players have locked in,
+    or the timer runs out, the proof stage commences
 
 
-    The first
-    phase is the bidding phase,'
+    The second phase is the
+    proof phase, where you show your solution. It starts by allowing the player with
+    the lowest bid to go first. If they show a solution within their bid, they win
+    the point. Otherwise, the next lowest bid goes. The player with the most points
+    after all rounds wins'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
+  m_sharedMaterial: {fileID: 8684509865699894524, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -211,8 +217,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 21
+  m_fontSizeBase: 21
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -752,8 +758,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -550, y: 68.91}
-  m_SizeDelta: {x: 311.84, y: 520.35}
+  m_AnchoredPosition: {x: -533.12, y: 68.91}
+  m_SizeDelta: {x: 345.6, y: 520.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1377621482
 MonoBehaviour:
@@ -776,14 +782,19 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: 'Click the penguin you want to move and drag your mouse in the direction
-    you want to slide it.
+    you want to slide it. Penguins can only stop sliding by hitting a wall or another
+    penguin.
 
 
-    Each penguin can only eat the fish that corresponds
-    to it''s color'
+    Each penguin can only eat the fish that corresponds to it''s color.
+    When you eat a fish, a new fish is revealed!
+
+
+    When playing the main mode
+    there are two phases per round.'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
+  m_sharedMaterial: {fileID: 8684509865699894524, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -807,8 +818,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1013,8 +1024,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Return To Menu
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
+  m_sharedMaterial: {fileID: 8684509865699894524, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
