@@ -9,6 +9,7 @@ public class Player
     public int Wins;
     public int TickerValue;
     public int CurrentBid;
+    public bool Concedes = false;
     public InputActionMap Input;
     public Player(  string name,
                     int wins,
@@ -55,5 +56,14 @@ public class Player
             return prev;
         }
         return -1;
+    }
+
+    public bool PollForConcession ()
+    {
+        if (Input["Continue"].triggered)
+        {
+            Concedes = !Concedes;
+        }
+        return Concedes;
     }
 }

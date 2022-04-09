@@ -5,13 +5,13 @@ using PriorityQueues;
 
 public class Auctioneer : MonoBehaviour
 {
-
     public int PlayerCount;
     public int[] CurrentBids;
     BinaryHeap<(int,int),int> bidQ;
-    float RemainingSeconds = 10f;
+    public float RemainingSeconds = 10f;
     public RoundManager manager;
     AuctionInput input;
+    PlayerManager pm;
     AuctionUIRenderer ui;
 
     void Awake()
@@ -25,10 +25,12 @@ public class Auctioneer : MonoBehaviour
         manager = gameObject.GetComponent<RoundManager>();
 
         ui = gameObject.GetComponent<AuctionUIRenderer>(); 
+        pm = gameObject.GetComponent<PlayerManager>();
         input = gameObject.GetComponent<AuctionInput>();
         input.enabled = true;
 
         ui.RefreshTime(RemainingSeconds);
+
     }
     void OnDestroy()
     {
@@ -42,6 +44,10 @@ public class Auctioneer : MonoBehaviour
         if (bidQ.Count > 0)
         {
             // a bid has been made; start the countdown.
+            if (pm.PollForConcessions())
+            {
+                RemainingSeconds = Time.deltaTime;
+            }
             RemainingSeconds -= Time.deltaTime;
             ui.RefreshTime(RemainingSeconds);
         }

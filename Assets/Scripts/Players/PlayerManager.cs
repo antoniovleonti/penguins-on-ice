@@ -79,6 +79,18 @@ public class PlayerManager : MonoBehaviour
     }
   }
 
+  public bool PollForConcessions ()
+  {
+    bool allConceded = true;
+
+    for (int i = 0; i < PlayerCount; i++)
+    {
+      allConceded = allConceded && Players[i].PollForConcession();
+    }
+
+    return allConceded;
+  }
+
   public void RegisterNewGamepads()
   {
     foreach (Gamepad g in Gamepad.all)
