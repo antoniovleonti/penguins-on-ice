@@ -84,6 +84,7 @@ public class AuctionUIRenderer : MonoBehaviour
         trackers[player].TickerValue = info.TickerValue.ToString();
         trackers[player].CurrentBid = info.CurrentBid.ToString();
         trackers[player].Name = info.Name;
+        trackers[player].Concedes = info.Concedes;
     }
 
     public void InitClock () 
@@ -159,9 +160,31 @@ class PlayerTracker
         get { return go.GetComponent<RectTransform>().anchoredPosition; }
         set { go.GetComponent<RectTransform>().anchoredPosition = value; }
     }
+    bool concedes;
+    Color namePlateColor
+    {
+        get {
+            var plateGO = go.transform.Find("NAMEPLATE").gameObject;
+            return plateGO.GetComponent<Image>().color;
+        }
+        set {
+            var plateGO = go.transform.Find("NAMEPLATE").gameObject;
+            plateGO.GetComponent<Image>().color = value;
+        }
+    }
+    public bool Concedes
+    {
+        get { 
+            return concedes;
+        }
+        set {
+            concedes = value;
+            namePlateColor = concedes ? Color.gray : Color.white;
+            getChildTextField("STATUS").text = concedes ? "(Ready)" : "";
+        }
+    }
     private TextMeshProUGUI getChildTextField(string childName)
     {
-
         GameObject child = go.transform.Find(childName).gameObject;
         return child.GetComponent<TextMeshProUGUI>();
     }
@@ -182,7 +205,6 @@ class ClockDisplay
     }
     private TextMeshProUGUI getChildTextField(string childName)
     {
-
         GameObject child = go.transform.Find(childName).gameObject;
         return child.GetComponent<TextMeshProUGUI>();
     }

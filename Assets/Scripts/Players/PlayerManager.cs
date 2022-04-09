@@ -53,6 +53,16 @@ public class PlayerManager : MonoBehaviour
       ui.RefreshPlayer(i,p);
     }
   }
+  
+  void EndAuction ()
+  {
+    // reset the concessions
+    for (int i = 0; i < PlayerCount; i++)
+    {
+      Players[i].Concedes = false;
+      ui.RefreshPlayer(i, Players[i]);
+    }
+  }
 
   public void PollTickers ()
   {
@@ -85,7 +95,9 @@ public class PlayerManager : MonoBehaviour
 
     for (int i = 0; i < PlayerCount; i++)
     {
-      allConceded = allConceded && Players[i].PollForConcession();
+      bool didConcede = Players[i].PollForConcession();
+      allConceded = allConceded && didConcede;
+      ui.RefreshPlayer(i, Players[i]);
     }
 
     return allConceded;

@@ -8,7 +8,7 @@ public class Auctioneer : MonoBehaviour
     public int PlayerCount;
     public int[] CurrentBids;
     BinaryHeap<(int,int),int> bidQ;
-    public float RemainingSeconds = 10f;
+    public float RemainingSeconds = 60f;
     public RoundManager manager;
     AuctionInput input;
     PlayerManager pm;
