@@ -52,6 +52,20 @@ public class ProofInput : MonoBehaviour
             // get the coords of the second click
             int endI = Board.CellToCoord(-1 * end.y);
             int endJ = Board.CellToCoord(end.x);
+
+            //Improve Mouse Input
+            int i = endI - startI;
+            int j = endJ - startJ;
+
+            if(Mathf.Abs(i) > Mathf.Abs(j))
+            {
+                endJ = startJ;
+            }
+            else
+            {
+                endI = startI;
+            }
+
             // calculate the direction
             int dy = Math.Sign(endI - startI);
             int dx = Math.Sign(endJ - startJ);
