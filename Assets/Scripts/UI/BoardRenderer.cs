@@ -150,6 +150,7 @@ public class BoardRenderer : MonoBehaviour
         {
             yield break;
         }
+        Vector3 local = penguinsGObjs[click_i,click_j].transform.position;
         var offset = new Vector3(0.5f, 0.5f, 0);
         var startLocal = grid.CellToLocal(new Vector3Int(click_j,-click_i,1)) + offset;
         // copy gameobject
@@ -172,7 +173,7 @@ public class BoardRenderer : MonoBehaviour
                                     mousePos.y.ReadValue(), 
                                     0f );
             var world = cam.ScreenToWorldPoint(vec);
-            var local = grid.WorldToLocal(world);
+            local = grid.WorldToLocal(world);
             // calculate ghost position from local mouse position
             var diff = startLocal - local;
             if (Math.Abs(diff.x) > Math.Abs(diff.y))
@@ -220,6 +221,7 @@ public class BoardRenderer : MonoBehaviour
             // interpolation?
             yield return null;
         }
+        penguinsGObjs[click_i,click_j].transform.position = ghost.transform.position;
         // delete the new gameobject
         Destroy(ghost);
     }
