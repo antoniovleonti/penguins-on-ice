@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BoardRenderer : MonoBehaviour
 {
@@ -142,6 +143,86 @@ public class BoardRenderer : MonoBehaviour
         }
         Redraw(board);
     }
+
+    public IEnumerator MouseDragFeedback (int click_i, int click_j, Board board)
+    {
+        if (penguinsGObjs[click_i,click_j] == null)
+        {
+            yield break;
+        }
+        var offset = new Vector3(0.5f, 0.5f, 0);
+        var startLocal = grid.CellToLocal(new Vector3Int(click_j,-click_i,1)) + offset;
+        // copy gameobject
+        var ghost = Instantiate(penguinsGObjs[click_i,click_j], penguins.transform);
+        // make color gray
+        var bg = ghost.transform.Find("bg");
+        SpriteRenderer bgSR = bg.GetComponent<SpriteRenderer>();
+        Color bgColor = bgSR.color;
+        bgColor.a = 0.5f;
+        bgSR.color = bgColor;
+        
+        var fg = ghost.transform.Find("fg");
+        //fg.GetComponent<SpriteRenderer>().color.a = 0.5f;
+        // make translucent
+        while (!Mouse.current.leftButton.wasReleasedThisFrame)
+        {
+            // convert mouse position to local position
+            var mousePos = Mouse.current.position;
+            var vec = new Vector3(  mousePos.x.ReadValue(), 
+                                    mousePos.y.ReadValue(), 
+                                    0f );
+            var world = cam.ScreenToWorldPoint(vec);
+            var local = grid.WorldToLocal(world);
+            // calculate ghost position from local mouse position
+            var diff = startLocal - local;
+            if (Math.Abs(diff.x) > Math.Abs(diff.y))
+            {
+                local.y = startLocal.y;
+            }
+            else
+            {
+                local.x = startLocal.x;
+            }
+            local.z = 0f;
+        
+            // approximate the current mouse drag into a move
+            var startI = (click_i * 2 + 1);
+            var startJ = click_j * 2 + 1;
+            int dy = -Math.Sign(local.y - startLocal.y);
+            int dx = Math.Sign(local.x - startLocal.x);
+
+            if (board.IsValidMove(startI,startJ,dy,dx))
+            {
+                try
+                {
+                    // get the end location in world position
+                    var dest = board.CalculateMove(startI, startJ, dy, dx);
+                    int i,j; (i,j) = dest;
+                    i = (i-1)/2;
+                    j = (j-1)/2;
+                    var endCell = new Vector3Int(j,-i,0);
+                    var endCoord = grid.CellToLocal(endCell) + new Vector3(0.5f, 0.5f, 0);
+                    // make sure the penguin does not go past the end location
+                    var ghostDist = (startLocal-local).magnitude;
+                    var endDist = (startLocal-endCoord).magnitude;
+                    if (ghostDist > endDist) local = endCoord;
+                } 
+                catch {}
+            }
+            local.z = -2f;
+            
+            var cur = ghost.transform.position;
+            ghost.transform.position = local;
+            ghost.transform.position = Vector3.Lerp(cur,local, Time.deltaTime*10f);
+
+            // move gameobject to appropriate location relative to mouse
+            // should not extend past where it will actually go when released
+            // interpolation?
+            yield return null;
+        }
+        // delete the new gameobject
+        Destroy(ghost);
+    }
     public void Redraw(Board board)
     {
         EraseBoard();
@@ -260,7 +341,7 @@ public class BoardRenderer : MonoBehaviour
                 GameObject penguin = new GameObject("penguin @ ("+i+", "+j+")"); 
                 penguin.transform.SetParent(penguins.transform);
 
-                var cell = new Vector3Int(j, -i, -1);
+                var cell = new Vector3Int(j, -i, -5);
                 var lpos = grid.CellToLocal(cell) + new Vector3(0.5f, 0.5f, 0);
                 penguin.transform.localPosition = lpos;
 

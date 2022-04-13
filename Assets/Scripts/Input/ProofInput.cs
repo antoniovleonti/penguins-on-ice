@@ -10,6 +10,7 @@ public class ProofInput : MonoBehaviour
     private ProofManager manager;
     private Grid grid;
     private Camera cam;
+    BoardRenderer bRenderer;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,6 +21,7 @@ public class ProofInput : MonoBehaviour
     {
         // this is where the result of player input goes
         manager = gameObject.GetComponent<ProofManager>();
+        bRenderer = gameObject.GetComponent<BoardRenderer>();
     }
 
     // Update is called once per frame
@@ -34,6 +36,8 @@ public class ProofInput : MonoBehaviour
             var world = cam.ScreenToWorldPoint(vec);
             var local = grid.WorldToLocal(world);
             selection = grid.LocalToCell(local);
+
+            StartCoroutine(bRenderer.MouseDragFeedback(-selection.y, selection.x, manager.BoardState));
         }
         if (Mouse.current.leftButton.wasReleasedThisFrame)
         {

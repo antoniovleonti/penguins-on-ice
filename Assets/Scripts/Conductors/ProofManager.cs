@@ -7,7 +7,7 @@ public class ProofManager : MonoBehaviour
 {
     BinaryHeap<(int,int),int> bidQ;
     bool[] hasTried;
-    Board board;
+    public Board BoardState;
     BoardRenderer bRenderer;
     ProofInput input;
     RoundManager manager;
@@ -32,9 +32,9 @@ public class ProofManager : MonoBehaviour
     {
         input.enabled = false;
     }
-    public void Init(Board board_, BinaryHeap<(int,int),int> bidQ_)
+    public void Init(Board BoardState_, BinaryHeap<(int,int),int> bidQ_)
     {
-        board = board_;
+        BoardState = BoardState_;
         bidQ = bidQ_;
     }
 
@@ -45,8 +45,8 @@ public class ProofManager : MonoBehaviour
     }
     void nextBid()
     {
-        board = board.GetFirstBoardState();
-        bRenderer.Redraw(board);
+        BoardState = BoardState.GetFirstBoardState();
+        bRenderer.Redraw(BoardState);
         bool first = true;
         while (first || hasTried[currentPlayer])
         {
@@ -65,7 +65,7 @@ public class ProofManager : MonoBehaviour
     }
     public void TryMove(int startY, int startX, int dY, int dX)
     {
-        if (!board.IsValidMove(startY,startX,dY,dX)) 
+        if (!BoardState.IsValidMove(startY,startX,dY,dX)) 
         {
             return;
         }
@@ -74,26 +74,26 @@ public class ProofManager : MonoBehaviour
     IEnumerator MakeMove (int startY, int startX, int dY, int dX)
     {
         // calculate move dest and animate it
-        int endY,endX; (endY,endX) = board.CalculateMove(startY,startX, dY,dX);
+        int endY,endX; (endY,endX) = BoardState.CalculateMove(startY,startX, dY,dX);
         // TODO: bRenderer.AnimateMove()
 
-        bool didWin = board.MakeMove(startY,startX,dY,dX);
+        bool didWin = BoardState.MakeMove(startY,startX,dY,dX);
         // animate the move and WAIT until it's done.
         input.enabled = false;
         yield return StartCoroutine(
-            bRenderer.AnimThenRedraw(startY,endY,startX,endX,board));
+            bRenderer.AnimThenRedraw(startY,endY,startX,endX,BoardState));
         input.enabled = true;
 
         if (didWin) 
         {
-            if (board.MoveCount == currentBid)
+            if (BoardState.MoveCount == currentBid)
             {
                 BroadcastMessage("EndProofs", currentPlayer);
                 Destroy(this);
             }
             else nextBid();
         }
-        else if (board.MoveCount >= currentBid)
+        else if (BoardState.MoveCount >= currentBid)
         {
             nextBid();
         }
