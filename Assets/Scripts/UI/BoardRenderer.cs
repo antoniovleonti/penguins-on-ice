@@ -122,106 +122,118 @@ public class BoardRenderer : MonoBehaviour
         colEnd = (colEnd - 1) / 2;
         rowEnd = (rowEnd - 1) / 2;
 
-        float animTime = 0.25f;
-        float elapsed = 0f;
-
-        var startCell = new Vector3Int(rowStart,-colStart,-5);
         var endCell = new Vector3Int(rowEnd,-colEnd,-5);
-        Vector3 startCoord = grid.CellToLocal(startCell) + new Vector3(0.5f, 0.5f, 0);
-        Vector3 endCoord = grid.CellToLocal(endCell) + new Vector3(0.5f, 0.5f, 0);
+        Vector3 endPos = grid.CellToLocal(endCell) + new Vector3(0.5f, 0.5f, 0);
 
-        while (elapsed < animTime)
+        Vector3 curPos = penguinsGObjs[colStart,rowStart].transform.localPosition;
+        while ((curPos - endPos).magnitude > Time.deltaTime*10f)
         {
-            var oldPos = penguinsGObjs[colStart,rowStart].transform.localPosition;
             // https://chicounity3d.wordpress.com/2014/05/23/how-to-lerp-like-a-pro/
-            float t = elapsed/animTime;
-            t = t*t*t * (t * (6f*t - 15f) + 10f);
-            var newPos = Vector3.Lerp(oldPos, endCoord, t);
+            curPos = penguinsGObjs[colStart,rowStart].transform.localPosition;
+            var newPos = Vector3.Lerp(curPos, endPos, Time.deltaTime*10f);
             penguinsGObjs[colStart,rowStart].transform.localPosition = newPos;
-            elapsed += Time.deltaTime;
             yield return null;
         }
         Redraw(board);
     }
 
-    public IEnumerator MouseDragFeedback (int click_i, int click_j, Board board)
+    public IEnumerator MouseDragFeedback (int clicki, int clickj, Board board)
     {
-        if (penguinsGObjs[click_i,click_j] == null)
-        {
+        // if they didn't click a penguin just ignore it
+        if (!board.CellIsInBounds(clicki, clickj) ||
+            penguinsGObjs[clicki, clickj] == null
+        ){
             yield break;
-        }
-        Vector3 local = penguinsGObjs[click_i,click_j].transform.position;
+        } 
+
+        // set up starting square stuff
+        int clickI = clicki * 2 + 1;
+        int clickJ = clickj * 2 + 1;
         var offset = new Vector3(0.5f, 0.5f, 0);
-        var startLocal = grid.CellToLocal(new Vector3Int(click_j,-click_i,1)) + offset;
+        var startPos = grid.CellToLocal(new Vector3Int(clickj,-clicki,1)) + offset;
+
         // copy gameobject
-        var ghost = Instantiate(penguinsGObjs[click_i,click_j], penguins.transform);
-        // make color gray
-        var bg = ghost.transform.Find("bg");
-        SpriteRenderer bgSR = bg.GetComponent<SpriteRenderer>();
-        Color bgColor = bgSR.color;
-        bgColor.a = 0.5f;
+        var ghost = Instantiate(penguinsGObjs[clicki,clickj], penguins.transform);
+        // make translucent
+        SpriteRenderer bgSR = 
+            ghost.transform.Find("bg").GetComponent<SpriteRenderer>();
+        Color bgColor = bgSR.color; // set up new color
+        bgColor.a = 0.5f; 
         bgSR.color = bgColor;
         
-        var fg = ghost.transform.Find("fg");
-        //fg.GetComponent<SpriteRenderer>().color.a = 0.5f;
-        // make translucent
+        // this is the desired position of the ghost
+        // "mouseProjPos" = mouse projection pos; 
+        //   ; the mouse's projected pos onto the x / y axis
+        Vector3 mouseProjPos = penguinsGObjs[clicki,clickj].transform.position;
+        bool trackingMouse = false; // true if player is dragging off starting square
         while (!Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            // convert mouse position to local position
+            // convert mouse position to mouseProjPos position
             var mousePos = Mouse.current.position;
-            var vec = new Vector3(  mousePos.x.ReadValue(), 
-                                    mousePos.y.ReadValue(), 
-                                    0f );
-            var world = cam.ScreenToWorldPoint(vec);
-            local = grid.WorldToLocal(world);
-            // calculate ghost position from local mouse position
-            var diff = startLocal - local;
-            if (Math.Abs(diff.x) > Math.Abs(diff.y))
-            {
-                local.y = startLocal.y;
-            }
-            else
-            {
-                local.x = startLocal.x;
-            }
-            local.z = 0f;
+            var mousePosCam = new Vector3(  mousePos.x.ReadValue(), 
+                                            mousePos.y.ReadValue(), 
+                                            0f );
+            var mousePosWorld = cam.ScreenToWorldPoint(mousePosCam);
+            mouseProjPos = grid.WorldToLocal(mousePosWorld);
+            // calculate ghost position from mouseProjPos mouse position
+            var diff = startPos - mouseProjPos;
+            if (Math.Abs(diff.x) > Math.Abs(diff.y)) mouseProjPos.y = startPos.y;
+            else mouseProjPos.x = startPos.x;
+                
+            // it is important that the z component is zero
+            mouseProjPos.z = 0f;
         
             // approximate the current mouse drag into a move
-            var startI = (click_i * 2 + 1);
-            var startJ = click_j * 2 + 1;
-            int dy = -Math.Sign(local.y - startLocal.y);
-            int dx = Math.Sign(local.x - startLocal.x);
+            int dy = -Math.Sign(mouseProjPos.y - startPos.y);
+            int dx = Math.Sign(mouseProjPos.x - startPos.x);
+            // determine if we should track the mouse this frame or not
+            var mouseProjCell = grid.LocalToCell(mouseProjPos);
+            var startCell = grid.LocalToCell(startPos);
+            trackingMouse = ( mouseProjCell.x != startCell.x || 
+                              mouseProjCell.y != startCell.y) &&
+                            board.IsValidMove(clickI,clickJ,dy,dx);
 
-            if (board.IsValidMove(startI,startJ,dy,dx))
+            if (trackingMouse)
             {
                 try
                 {
                     // get the end location in world position
-                    var dest = board.CalculateMove(startI, startJ, dy, dx);
+                    var dest = board.CalculateMove(clickI, clickJ, dy, dx);
                     int i,j; (i,j) = dest;
-                    i = (i-1)/2;
+                    i = (i-1)/2; // convert coords to cell space
                     j = (j-1)/2;
-                    var endCell = new Vector3Int(j,-i,0);
-                    var endCoord = grid.CellToLocal(endCell) + new Vector3(0.5f, 0.5f, 0);
+                    var endCell = new Vector3Int(j, -i, 0);
+                    var endPos = grid.CellToLocal(endCell) + new Vector3(0.5f, 0.5f, 0);
                     // make sure the penguin does not go past the end location
-                    var ghostDist = (startLocal-local).magnitude;
-                    var endDist = (startLocal-endCoord).magnitude;
-                    if (ghostDist > endDist) local = endCoord;
+                    var ghostDist = (startPos-mouseProjPos).magnitude;
+                    var endDist = (startPos-endPos).magnitude;
+                    if (ghostDist > endDist) mouseProjPos = endPos;
                 } 
-                catch {}
+                catch (Exception e)
+                {
+                    Debug.Log(e);
+                }
             }
-            local.z = -2f;
-            
+            else
+            {
+                mouseProjPos = startPos;
+            }
+            mouseProjPos.z = -2f;
+            // move the ghost closer to wherever we want it
             var cur = ghost.transform.position;
-            ghost.transform.position = local;
-            ghost.transform.position = Vector3.Lerp(cur,local, Time.deltaTime*10f);
-
-            // move gameobject to appropriate location relative to mouse
-            // should not extend past where it will actually go when released
-            // interpolation?
-            yield return null;
+            ghost.transform.position = mouseProjPos;
+            ghost.transform.position = Vector3.Lerp(cur, 
+                                                    mouseProjPos, 
+                                                    Time.deltaTime*10f);
+            
+            yield return null; // done until next frame
         }
-        penguinsGObjs[click_i,click_j].transform.position = ghost.transform.position;
+        // if the mouse was being tracked on the last frame
+        if (trackingMouse) 
+        {
+            penguinsGObjs[clicki,clickj].transform.position = 
+                ghost.transform.position;
+        }
         // delete the new gameobject
         Destroy(ghost);
     }
