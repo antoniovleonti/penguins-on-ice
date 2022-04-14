@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class Player 
 {
     public string Name;
+    public string Status;
     public int Wins;
     public int TickerValue;
     public int CurrentBid;
@@ -22,6 +23,7 @@ public class Player
         TickerValue = tickerValue;
         CurrentBid = currentBid;
         Input = input;
+        Status = "";
     }
 
     public bool PollTicker ()

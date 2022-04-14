@@ -60,17 +60,22 @@ public class PlayerManager : MonoBehaviour
     for (int i = 0; i < PlayerCount; i++)
     {
       Players[i].Concedes = false;
+      // status
+      Players[i].Status = "";
       ui.RefreshPlayer(i, Players[i]);
     }
   }
 
   void EndProofs ()
   {
-    // reset the concessions
     for (int i = 0; i < PlayerCount; i++)
     {
+      // reset the concessions
       Players[i].Concedes = false;
+      // status
+      Players[i].Status = "";
       ui.RefreshPlayer(i, Players[i]);
+      
     }
   }
 
@@ -106,6 +111,7 @@ public class PlayerManager : MonoBehaviour
     for (int i = 0; i < PlayerCount; i++)
     {
       bool didConcede = Players[i].PollForConcession();
+      if (didConcede) Players[i].Status = "(Ready)";
       allConceded = allConceded && didConcede;
       ui.RefreshPlayer(i, Players[i]);
     }

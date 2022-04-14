@@ -85,6 +85,7 @@ public class AuctionUIRenderer : MonoBehaviour
         trackers[player].CurrentBid = info.CurrentBid.ToString();
         trackers[player].Name = info.Name;
         trackers[player].Concedes = info.Concedes;
+        trackers[player].Status = info.Status;
     }
 
     public void InitClock () 
@@ -140,6 +141,11 @@ class PlayerTracker
         get { return getChildTextField("NAME").text; }
         set { getChildTextField("NAME").text = value; }
     }
+    public string Status
+    {
+        get {return getChildTextField("STATUS").text; }
+        set { getChildTextField("STATUS").text = value; }
+    }
     public string Wins
     {
         get { return getChildTextField("WINS").text; }
@@ -180,7 +186,6 @@ class PlayerTracker
         set {
             concedes = value;
             namePlateColor = concedes ? Color.gray : Color.white;
-            getChildTextField("STATUS").text = concedes ? "(Ready)" : "";
         }
     }
     private TextMeshProUGUI getChildTextField(string childName)

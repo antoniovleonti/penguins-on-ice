@@ -9,6 +9,7 @@ public class ProofManager : MonoBehaviour
     bool[] hasTried;
     public Board BoardState;
     BoardRenderer bRenderer;
+    AuctionUIRenderer ui;
     ProofInput input;
     PlayerManager pm;
     RoundManager manager;
@@ -22,6 +23,7 @@ public class ProofManager : MonoBehaviour
         manager = gameObject.GetComponent<RoundManager>();
         input = gameObject.GetComponent<ProofInput>();
         pm = gameObject.GetComponent<PlayerManager>();
+        ui = gameObject.GetComponent<AuctionUIRenderer>();
         hasTried = new bool[64];
     }
 
@@ -45,6 +47,8 @@ public class ProofManager : MonoBehaviour
     {
         if (pm.Players[currentPlayer].PollForConcession())
         {
+            pm.Players[currentPlayer].Status = "(Gave up)";
+            ui.RefreshPlayer(currentPlayer, pm.Players[currentPlayer]);
             nextBid();
         }    
     }
