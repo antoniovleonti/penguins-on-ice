@@ -64,6 +64,16 @@ public class PlayerManager : MonoBehaviour
     }
   }
 
+  void EndProofs ()
+  {
+    // reset the concessions
+    for (int i = 0; i < PlayerCount; i++)
+    {
+      Players[i].Concedes = false;
+      ui.RefreshPlayer(i, Players[i]);
+    }
+  }
+
   public void PollTickers ()
   {
     for (int i = 0; i < PlayerCount; i++)
@@ -101,6 +111,11 @@ public class PlayerManager : MonoBehaviour
     }
 
     return allConceded;
+  }
+
+  public bool PollPlayerForConcession (int player)
+  {
+    return false;
   }
 
   public void RegisterNewGamepads()

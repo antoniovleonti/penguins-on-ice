@@ -158,7 +158,7 @@ public class BoardRenderer : MonoBehaviour
         SpriteRenderer bgSR = 
             ghost.transform.Find("bg").GetComponent<SpriteRenderer>();
         Color bgColor = bgSR.color; // set up new color
-        bgColor.a = 0.5f; 
+        bgColor.a *= 0.5f; 
         bgSR.color = bgColor;
         
         // this is the desired position of the ghost

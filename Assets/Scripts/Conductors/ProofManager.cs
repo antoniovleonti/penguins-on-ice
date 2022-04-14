@@ -10,6 +10,7 @@ public class ProofManager : MonoBehaviour
     public Board BoardState;
     BoardRenderer bRenderer;
     ProofInput input;
+    PlayerManager pm;
     RoundManager manager;
     int currentBid;
     int currentPlayer;
@@ -20,6 +21,7 @@ public class ProofManager : MonoBehaviour
         bRenderer = gameObject.GetComponent<BoardRenderer>();
         manager = gameObject.GetComponent<RoundManager>();
         input = gameObject.GetComponent<ProofInput>();
+        pm = gameObject.GetComponent<PlayerManager>();
         hasTried = new bool[64];
     }
 
@@ -41,7 +43,10 @@ public class ProofManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (pm.Players[currentPlayer].PollForConcession())
+        {
+            nextBid();
+        }    
     }
     void nextBid()
     {
