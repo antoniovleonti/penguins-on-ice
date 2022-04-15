@@ -8,9 +8,11 @@ public class AuctionUIRenderer : MonoBehaviour
 {
     public GameObject TrackerPrefab;
     public GameObject ClockPrefab;
+    public GameObject PhaseDisplayPrefab;
     GameObject uiParent;
     List<PlayerTracker> trackers;
     ClockDisplay clock;
+    PhaseDisplay phaseDisplay;
     float trackerGap = 20f;
     float trackerWidth;
     // Start is called before the first frame update
@@ -36,6 +38,7 @@ public class AuctionUIRenderer : MonoBehaviour
 
         // get the clock ready
         InitClock();
+        InitPhaseDisplay();
     }
 
     // Update is called once per frame
@@ -43,9 +46,23 @@ public class AuctionUIRenderer : MonoBehaviour
     {
         
     }
+    void StartAuction ()
+    {
+        RefreshPhase("Bidding phase");
+    }
+    void StartProofs ()
+    {
+        RefreshPhase("Proofs phase");
+    }
     public void RefreshTime(float seconds)
     {
         clock.SetTime(seconds);
+    }
+
+    public void RefreshPhase(string phase)
+    {
+        phaseDisplay.Text = phase;
+        Debug.Log(phaseDisplay.Text);
     }
     public void RefreshNames(string[] names)
     {
@@ -96,6 +113,16 @@ public class AuctionUIRenderer : MonoBehaviour
         xform.anchoredPosition = new Vector2(0, -20f);
         //
         clock = new ClockDisplay(go);
+    }
+
+    public void InitPhaseDisplay () 
+    {
+        var go = GameObject.Instantiate(PhaseDisplayPrefab, uiParent.transform);
+        // anchor is set up in the prefab already, just need to position
+        var xform = go.GetComponent<RectTransform>();
+        xform.anchoredPosition = new Vector2(20f, -20f);
+        //
+        phaseDisplay = new PhaseDisplay(go);
     }
 
     public void AddTracker ()
@@ -213,4 +240,24 @@ class ClockDisplay
         GameObject child = go.transform.Find(childName).gameObject;
         return child.GetComponent<TextMeshProUGUI>();
     }
+}
+
+class PhaseDisplay
+{
+    GameObject go;
+    public string Text
+    {
+        get { return getChildTextField("PHASE").text; }
+        set { getChildTextField("PHASE").text = value; }
+    }
+    public PhaseDisplay (GameObject go)
+    {
+        this.go = go;
+    }
+    TextMeshProUGUI getChildTextField(string childName)
+    {
+        GameObject child = go.transform.Find(childName).gameObject;
+        return child.GetComponent<TextMeshProUGUI>();
+    }
+    
 }

@@ -17,7 +17,7 @@ public class RoundManager : MonoBehaviour
         bRenderer = gameObject.GetComponent<BoardRenderer>();
         manager = gameObject.GetComponent<FlowManager>();
 
-        StartAuction();
+        auctioneer = gameObject.AddComponent<Auctioneer>();
     }
     void Start()
     {
@@ -32,10 +32,6 @@ public class RoundManager : MonoBehaviour
     void Update()
     {
         
-    }
-    public void StartAuction()
-    {
-        auctioneer = gameObject.AddComponent<Auctioneer>();
     }
     public void EndAuction(BinaryHeap<(int,int),int> bidQ)
     {

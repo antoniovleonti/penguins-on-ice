@@ -30,6 +30,7 @@ public class ProofManager : MonoBehaviour
     void Start()
     {
         input.enabled = true;
+        BroadcastMessage("StartProofs");
         nextBid();
     }
     void OnDestroy()

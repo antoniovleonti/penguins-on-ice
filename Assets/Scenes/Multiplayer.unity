@@ -159,7 +159,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.36632255, g: 0.4714525, b: 0.5283019, a: 0}
+  m_BackGroundColor: {r: 0.51152545, g: 0.6545552, b: 0.8962264, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -283,6 +283,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TrackerPrefab: {fileID: 3204796022339014432, guid: 0676803b7a67349d7bd552cc1e316735, type: 3}
   ClockPrefab: {fileID: 7314665558392581267, guid: 637131bc37772238c8b3d5924790607e, type: 3}
+  PhaseDisplayPrefab: {fileID: 7314665558392581267, guid: 310218455293f40c49c973bc7aec318c, type: 3}
 --- !u!114 &1193036759
 MonoBehaviour:
   m_ObjectHideFlags: 0

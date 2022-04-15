@@ -31,6 +31,7 @@ public class Auctioneer : MonoBehaviour
 
         ui.RefreshTime(RemainingSeconds);
 
+        BroadcastMessage("StartAuction");
     }
     void OnDestroy()
     {
