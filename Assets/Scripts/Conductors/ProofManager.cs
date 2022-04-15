@@ -55,6 +55,10 @@ public class ProofManager : MonoBehaviour
     }
     void nextBid()
     {
+        // reset the last player's player count to zero 
+        pm.Players[currentPlayer].TickerValue = 0;
+        ui.RefreshPlayer(currentPlayer,pm.Players[currentPlayer]);
+
         BoardState = BoardState.GetFirstBoardState();
         bRenderer.Redraw(BoardState);
         bool first = true;
@@ -86,6 +90,9 @@ public class ProofManager : MonoBehaviour
         // calculate move dest and animate it
         int endY,endX; (endY,endX) = BoardState.CalculateMove(startY,startX, dY,dX);
         // TODO: bRenderer.AnimateMove()
+
+        pm.Players[currentPlayer].TickerValue++;
+        ui.RefreshPlayer(currentPlayer,pm.Players[currentPlayer]);
 
         bool didWin = BoardState.MakeMove(startY,startX,dY,dX);
         // animate the move and WAIT until it's done.

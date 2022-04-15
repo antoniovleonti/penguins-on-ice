@@ -60,8 +60,8 @@ public class PlayerManager : MonoBehaviour
     for (int i = 0; i < PlayerCount; i++)
     {
       Players[i].Concedes = false;
-      // status
       Players[i].Status = "";
+      Players[i].TickerValue = 0;
       ui.RefreshPlayer(i, Players[i]);
     }
   }
@@ -70,12 +70,11 @@ public class PlayerManager : MonoBehaviour
   {
     for (int i = 0; i < PlayerCount; i++)
     {
-      // reset the concessions
       Players[i].Concedes = false;
-      // status
       Players[i].Status = "";
+      Players[i].TickerValue = 0;
+      // update ui
       ui.RefreshPlayer(i, Players[i]);
-      
     }
   }
 

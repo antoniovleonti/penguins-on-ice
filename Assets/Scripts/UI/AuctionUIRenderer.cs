@@ -62,7 +62,6 @@ public class AuctionUIRenderer : MonoBehaviour
     public void RefreshPhase(string phase)
     {
         phaseDisplay.Text = phase;
-        Debug.Log(phaseDisplay.Text);
     }
     public void RefreshNames(string[] names)
     {
