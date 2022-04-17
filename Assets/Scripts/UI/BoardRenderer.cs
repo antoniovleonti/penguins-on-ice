@@ -40,8 +40,9 @@ public class BoardRenderer : MonoBehaviour
 
     GameObject[,] penguinsGObjs;
 
-    private Grid grid; // gameobject addon to make grid calculations easier
-    private Camera cam;
+    Grid grid; // gameobject addon to make grid calculations easier
+    Camera cam;
+    ProofInput proofInput;
 
     // things that need to happen before the script can be used go HERE
     void Awake()
@@ -66,7 +67,9 @@ public class BoardRenderer : MonoBehaviour
         cam.transform.SetParent(gameObject.transform);
 
         // add a grid which will do position calculations for us
-        grid = gameObject.AddComponent(typeof(Grid)) as Grid;
+        grid = gameObject.AddComponent<Grid>();
+
+        proofInput = gameObject.GetComponent<ProofInput>();
 
         tileSprites = new Sprite[tileTexs.GetLength(0)];
         for (int i = 0; i < tileTexs.GetLength(0); i++)
@@ -137,23 +140,26 @@ public class BoardRenderer : MonoBehaviour
         Redraw(board);
     }
 
-    public IEnumerator MouseDragFeedback (int clicki, int clickj, Board board)
+    public IEnumerator MouseDragFeedback (Vector2Int clickCell, Board board)
     {
         // if they didn't click a penguin just ignore it
-        if (!board.CellIsInBounds(clicki, clickj) ||
-            penguinsGObjs[clicki, clickj] == null
+        if (!board.CellIsInBounds(clickCell.y, clickCell.x) ||
+            penguinsGObjs[clickCell.y, clickCell.x] == null
         ){
+            Debug.Log("MouseDragFeedback: break");
             yield break;
         } 
 
         // set up starting square stuff
-        int clickI = clicki * 2 + 1;
-        int clickJ = clickj * 2 + 1;
+        Vector2Int clickCoord = new Vector2Int(Board.CellToCoord(clickCell.x),
+                                                Board.CellToCoord(clickCell.y));
+
         var offset = new Vector3(0.5f, 0.5f, 0);
-        var startPos = grid.CellToLocal(new Vector3Int(clickj,-clicki,1)) + offset;
+        var startPos = grid.CellToLocal(
+            new Vector3Int(clickCell.x,-clickCell.y,1)) + offset;
 
         // copy gameobject
-        var ghost = Instantiate(penguinsGObjs[clicki,clickj], penguins.transform);
+        var ghost = Instantiate(penguinsGObjs[clickCell.y,clickCell.x], penguins.transform);
         // make translucent
         SpriteRenderer bgSR = 
             ghost.transform.Find("bg").GetComponent<SpriteRenderer>();
@@ -164,46 +170,40 @@ public class BoardRenderer : MonoBehaviour
         // this is the desired position of the ghost
         // "mouseProjPos" = mouse projection pos; 
         //   ; the mouse's projected pos onto the x / y axis
-        Vector3 mouseProjPos = penguinsGObjs[clicki,clickj].transform.position;
+        Vector3 mouseProjPos = penguinsGObjs[clickCell.y,clickCell.x].transform.position;
         bool trackingMouse = false; // true if player is dragging off starting square
+
         while (!Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            // convert mouse position to mouseProjPos position
-            var mousePos = Mouse.current.position;
-            var mousePosCam = new Vector3(  mousePos.x.ReadValue(), 
-                                            mousePos.y.ReadValue(), 
-                                            0f );
-            var mousePosWorld = cam.ScreenToWorldPoint(mousePosCam);
-            mouseProjPos = grid.WorldToLocal(mousePosWorld);
+            mouseProjPos = proofInput.GetCurrentMousePos();
             // calculate ghost position from mouseProjPos mouse position
-            var diff = startPos - mouseProjPos;
+            var diff =  mouseProjPos - startPos;
             if (Math.Abs(diff.x) > Math.Abs(diff.y)) mouseProjPos.y = startPos.y;
             else mouseProjPos.x = startPos.x;
-                
-            // it is important that the z component is zero
-            mouseProjPos.z = 0f;
         
             // approximate the current mouse drag into a move
-            int dy = -Math.Sign(mouseProjPos.y - startPos.y);
-            int dx = Math.Sign(mouseProjPos.x - startPos.x);
+            diff =  mouseProjPos - startPos;
+            int dy = -Math.Sign(diff.y);
+            int dx = Math.Sign(diff.x);
             // determine if we should track the mouse this frame or not
             var mouseProjCell = grid.LocalToCell(mouseProjPos);
             var startCell = grid.LocalToCell(startPos);
-            trackingMouse = ( mouseProjCell.x != startCell.x || 
-                              mouseProjCell.y != startCell.y) &&
-                            board.IsValidMove(clickI,clickJ,dy,dx);
+            trackingMouse =(mouseProjCell.x != startCell.x || 
+                            mouseProjCell.y != startCell.y) &&
+                            board.IsValidMove(clickCoord.y,clickCoord.x,dy,dx);
 
             if (trackingMouse)
             {
                 try
                 {
                     // get the end location in world position
-                    var dest = board.CalculateMove(clickI, clickJ, dy, dx);
+                    var dest = board.CalculateMove(clickCoord.y, clickCoord.x, dy, dx);
                     int i,j; (i,j) = dest;
                     i = (i-1)/2; // convert coords to cell space
                     j = (j-1)/2;
-                    var endCell = new Vector3Int(j, -i, 0);
-                    var endPos = grid.CellToLocal(endCell) + new Vector3(0.5f, 0.5f, 0);
+                    var endCell = new Vector2Int(j, -i);
+                    var endPos = grid.CellToLocal((Vector3Int)endCell) 
+                                                  + new Vector3(0.5f, 0.5f, 0);
                     // make sure the penguin does not go past the end location
                     var ghostDist = (startPos-mouseProjPos).magnitude;
                     var endDist = (startPos-endPos).magnitude;
@@ -218,24 +218,23 @@ public class BoardRenderer : MonoBehaviour
             {
                 mouseProjPos = startPos;
             }
-            mouseProjPos.z = -2f;
+            var lerpDest = (Vector3)mouseProjPos;
+            lerpDest.z = -2f;
             // move the ghost closer to wherever we want it
             var cur = ghost.transform.position;
             ghost.transform.position = mouseProjPos;
-            ghost.transform.position = Vector3.Lerp(cur, 
-                                                    mouseProjPos, 
-                                                    Time.deltaTime*10f);
+            ghost.transform.position = 
+                Vector3.Lerp(cur, lerpDest, Time.deltaTime*10f);
             
             yield return null; // done until next frame
         }
         // if the mouse was being tracked on the last frame
         if (trackingMouse) 
         {
-            penguinsGObjs[clicki,clickj].transform.position = 
+            penguinsGObjs[clickCell.y,clickCell.x].transform.position = 
                 ghost.transform.position;
         }
         // delete the new gameobject
-        Destroy(ghost);
     }
     public void Redraw(Board board)
     {

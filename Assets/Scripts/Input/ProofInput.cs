@@ -6,10 +6,9 @@ using UnityEngine.InputSystem;
 
 public class ProofInput : MonoBehaviour
 {
-    private Vector3Int selection;
-    private ProofManager manager;
-    private Grid grid;
-    private Camera cam;
+    ProofManager manager;
+    Grid grid;
+    Camera cam;
     BoardRenderer bRenderer;
     // Start is called before the first frame update
     void Start()
@@ -29,53 +28,62 @@ public class ProofInput : MonoBehaviour
     {
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            var mousePos = Mouse.current.position;
-            var vec = new Vector3(  mousePos.x.ReadValue(), 
-                                    mousePos.y.ReadValue(), 
-                                    0 );
-            var world = cam.ScreenToWorldPoint(vec);
-            var local = grid.WorldToLocal(world);
-            selection = grid.LocalToCell(local);
+            Vector2Int clickCell = GetCurrentMouseCell();
 
-            StartCoroutine(bRenderer.MouseDragFeedback(-selection.y, selection.x, manager.BoardState));
+            StartCoroutine( listenForMouseRelease(clickCell));
+            StartCoroutine(
+                bRenderer.MouseDragFeedback(clickCell, manager.BoardState));
         }
-        if (Mouse.current.leftButton.wasReleasedThisFrame)
+    }
+    IEnumerator listenForMouseRelease (Vector2Int clickCell)
+    {
+        Debug.Log(clickCell);
+        while (!Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            // first grab the location of the mouse
-            var mousePos = Mouse.current.position;
-            var vec = new Vector3(  mousePos.x.ReadValue(), 
-                                    mousePos.y.ReadValue(), 
-                                    0 );
-            var world = cam.ScreenToWorldPoint(vec);
-            var local = grid.WorldToLocal(world);
-            var end = grid.LocalToCell(local);
-
-            // get the coords of the first click
-            int startI = Board.CellToCoord(-1 * selection.y);
-            int startJ = Board.CellToCoord(selection.x);
-            // get the coords of the second click
-            int endI = Board.CellToCoord(-1 * end.y);
-            int endJ = Board.CellToCoord(end.x);
-
-            //Improve Mouse Input
-            int i = endI - startI;
-            int j = endJ - startJ;
-
-            if(Mathf.Abs(i) > Mathf.Abs(j))
-            {
-                endJ = startJ;
-            }
-            else
-            {
-                endI = startI;
-            }
-
-            // calculate the direction
-            int dy = Math.Sign(endI - startI);
-            int dx = Math.Sign(endJ - startJ);
-
-            // try to make the move
-            manager.TryMove(startI, startJ, dy, dx);
+            yield return null; // do nothing this frame
         }
+        // we now know that the mouse was released this frame.
+        Vector2Int releaseCell = GetCurrentMouseCell();
+
+        // snap dragged direction to one of four orthogonal directions
+        var diff = releaseCell - clickCell;
+        if(Mathf.Abs(diff.x) > Mathf.Abs(diff.y))
+        {
+            releaseCell.y = clickCell.y;
+        }
+        else
+        {
+            releaseCell.x = clickCell.x;
+        }
+
+        Vector2Int clickCoord = new Vector2Int( Board.CellToCoord(clickCell.x),
+                                                Board.CellToCoord(clickCell.y));
+        // calculate the direction the player dragged in
+        diff = releaseCell - clickCell; // needs to be updated
+        int dx = Math.Sign(diff.x);
+        int dy = Math.Sign(diff.y);
+
+        Debug.Log((clickCoord.y,clickCoord.x,dy,dx));
+
+        // try to make the move
+        manager.TryMove(clickCoord.y, clickCoord.x, dy, dx);
+    }
+
+    public Vector2Int GetCurrentMouseCell ()
+    {
+        var local = GetCurrentMousePos();
+        var cell3 = grid.LocalToCell(local);
+        cell3.y *= -1;
+
+        return (Vector2Int)cell3;
+    }
+    public Vector2 GetCurrentMousePos ()
+    {
+        var mousePos = Mouse.current.position;
+        var vec = new Vector3(  mousePos.x.ReadValue(), 
+                                mousePos.y.ReadValue(), 
+                                0 );
+        var world = cam.ScreenToWorldPoint(vec);
+        return grid.WorldToLocal(world);
     }
 }
