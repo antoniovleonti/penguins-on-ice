@@ -63,36 +63,13 @@ public class AuctionUIRenderer : MonoBehaviour
     {
         phaseDisplay.Text = phase;
     }
-    public void RefreshNames(string[] names)
-    {
-        for (int i = 0; i < trackers.Count; i++)
-            trackers[i].Name = names[i];
-    }
     public void RefreshWins(int[] wins)
     {
         for (int i = 0; i < trackers.Count; i++)
             trackers[i].Wins = wins[i].ToString();
     }
 
-    public void RefreshTickerValues(int[] tickers)
-    {
-        for (int i = 0; i < trackers.Count; i++)
-        {
-            // you can't bid zero so replace 0 with another char
-            string s = tickers[i]==0 ? "*" : tickers[i].ToString();
-            trackers[i].TickerValue = s;
-        }
-    }
 
-    public void RefreshCurrentBids(int[] bids)
-    {
-        for (int i = 0; i < trackers.Count; i++)
-        {
-            // zero means no bid
-            string s = bids[i]==0 ? "*" : bids[i].ToString();
-            trackers[i].CurrentBid = s;
-        }
-    }
 
     public void RefreshPlayer(int player, Player info)
     {
@@ -100,8 +77,29 @@ public class AuctionUIRenderer : MonoBehaviour
         trackers[player].TickerValue = info.TickerValue.ToString();
         trackers[player].CurrentBid = info.CurrentBid.ToString();
         trackers[player].Name = info.Name;
-        trackers[player].Concedes = info.Concedes;
-        trackers[player].Status = info.Status;
+
+        Color c;
+        string s;
+        if (info.IsActive) 
+        {
+            Debug.Log($"{player} : green");
+            c = Color.green;
+            s = "(Showing)";
+        }
+        else if (info.Concedes || info.HasTried) 
+        {
+            c = Color.gray;
+            s = info.Concedes ? "(Concedes)" : "(Invalid)";
+        }
+        else 
+        {
+            Debug.Log($"{player} : white");
+            c = Color.white;
+            s = "";
+        }
+
+        trackers[player].NamePlateColor = c;
+        trackers[player].Status = s;
     }
 
     public void InitClock () 
@@ -192,8 +190,7 @@ class PlayerTracker
         get { return go.GetComponent<RectTransform>().anchoredPosition; }
         set { go.GetComponent<RectTransform>().anchoredPosition = value; }
     }
-    bool concedes;
-    Color namePlateColor
+    public Color NamePlateColor
     {
         get {
             var plateGO = go.transform.Find("NAMEPLATE").gameObject;
@@ -202,16 +199,6 @@ class PlayerTracker
         set {
             var plateGO = go.transform.Find("NAMEPLATE").gameObject;
             plateGO.GetComponent<Image>().color = value;
-        }
-    }
-    public bool Concedes
-    {
-        get { 
-            return concedes;
-        }
-        set {
-            concedes = value;
-            namePlateColor = concedes ? Color.gray : Color.white;
         }
     }
     private TextMeshProUGUI getChildTextField(string childName)

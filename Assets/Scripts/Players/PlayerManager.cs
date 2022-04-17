@@ -47,10 +47,12 @@ public class PlayerManager : MonoBehaviour
   {
     for (int i = 0; i < PlayerCount; i++)
     {
-      var p = Players[i];
-      p.CurrentBid = 0;
-      p.TickerValue = 0;
-      ui.RefreshPlayer(i,p);
+      Players[i].Concedes = false;
+      Players[i].IsActive = false;
+      Players[i].HasTried = false;
+      Players[i].TickerValue = 0;
+      // update ui
+      ui.RefreshPlayer(i, Players[i]);
     }
   }
   
@@ -60,7 +62,6 @@ public class PlayerManager : MonoBehaviour
     for (int i = 0; i < PlayerCount; i++)
     {
       Players[i].Concedes = false;
-      Players[i].Status = "";
       Players[i].TickerValue = 0;
       ui.RefreshPlayer(i, Players[i]);
     }
@@ -70,11 +71,6 @@ public class PlayerManager : MonoBehaviour
   {
     for (int i = 0; i < PlayerCount; i++)
     {
-      Players[i].Concedes = false;
-      Players[i].Status = "";
-      Players[i].TickerValue = 0;
-      // update ui
-      ui.RefreshPlayer(i, Players[i]);
     }
   }
 
@@ -110,7 +106,6 @@ public class PlayerManager : MonoBehaviour
     for (int i = 0; i < PlayerCount; i++)
     {
       bool didConcede = Players[i].PollForConcession();
-      if (didConcede) Players[i].Status = "(Ready)";
       allConceded = allConceded && didConcede;
       ui.RefreshPlayer(i, Players[i]);
     }

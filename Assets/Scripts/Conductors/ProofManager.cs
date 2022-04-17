@@ -14,7 +14,7 @@ public class ProofManager : MonoBehaviour
     PlayerManager pm;
     RoundManager manager;
     int currentBid;
-    int currentPlayer;
+    int currentPlayer = -1;
 
     // Start is called before the first frame update
     void Awake()
@@ -48,7 +48,6 @@ public class ProofManager : MonoBehaviour
     {
         if (pm.Players[currentPlayer].PollForConcession())
         {
-            pm.Players[currentPlayer].Status = "(Gave up)";
             ui.RefreshPlayer(currentPlayer, pm.Players[currentPlayer]);
             nextBid();
         }    
@@ -56,26 +55,32 @@ public class ProofManager : MonoBehaviour
     void nextBid()
     {
         // reset the last player's player count to zero 
-        pm.Players[currentPlayer].TickerValue = 0;
-        ui.RefreshPlayer(currentPlayer,pm.Players[currentPlayer]);
+        if (currentPlayer != -1)
+        {
+            pm.Players[currentPlayer].HasTried = true;
+            pm.Players[currentPlayer].IsActive = false;
+            pm.Players[currentPlayer].TickerValue = 0;
+            ui.RefreshPlayer(currentPlayer,pm.Players[currentPlayer]);
+        }
 
         BoardState = BoardState.GetFirstBoardState();
         bRenderer.Redraw(BoardState);
         bool first = true;
-        while (first || hasTried[currentPlayer])
+        while (first || pm.Players[currentPlayer].HasTried)
         {
             if (bidQ.Count == 0) 
             {
                 BroadcastMessage("EndProofs", -1);
                 Destroy(this);
-                break;
+                return;
             }
 
             (currentPlayer, currentBid) = bidQ.Dequeue();
             first = false;
         }
-        hasTried[currentPlayer] = true;
         Debug.Log("Current bid: player " + currentPlayer + " for " + currentBid);
+        pm.Players[currentPlayer].IsActive = true;
+        ui.RefreshPlayer(currentPlayer, pm.Players[currentPlayer]);
     }
     public IEnumerator TryMove(int startY, int startX, int dY, int dX)
     {
