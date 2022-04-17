@@ -146,17 +146,14 @@ public class BoardRenderer : MonoBehaviour
         if (!board.CellIsInBounds(clickCell.y, clickCell.x) ||
             penguinsGObjs[clickCell.y, clickCell.x] == null
         ){
-            Debug.Log("MouseDragFeedback: break");
             yield break;
         } 
 
         // set up starting square stuff
+        Vector3Int gridClickCell = new Vector3Int(clickCell.x,-clickCell.y,0);
+        Vector3 startPos = (Vector2)grid.GetCellCenterLocal(gridClickCell);
         Vector2Int clickCoord = new Vector2Int(Board.CellToCoord(clickCell.x),
                                                 Board.CellToCoord(clickCell.y));
-
-        var offset = new Vector3(0.5f, 0.5f, 0);
-        var startPos = grid.CellToLocal(
-            new Vector3Int(clickCell.x,-clickCell.y,1)) + offset;
 
         // copy gameobject
         var ghost = Instantiate(penguinsGObjs[clickCell.y,clickCell.x], penguins.transform);
@@ -170,34 +167,31 @@ public class BoardRenderer : MonoBehaviour
         // this is the desired position of the ghost
         // "mouseProjPos" = mouse projection pos; 
         //   ; the mouse's projected pos onto the x / y axis
-        Vector3 mouseProjPos = penguinsGObjs[clickCell.y,clickCell.x].transform.position;
+        Vector2 mouseProjPos = penguinsGObjs[clickCell.y,clickCell.x].transform.position;
         bool trackingMouse = false; // true if player is dragging off starting square
 
         while (!Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            mouseProjPos = proofInput.GetCurrentMousePos();
             // calculate ghost position from mouseProjPos mouse position
-            var diff =  mouseProjPos - startPos;
-            if (Math.Abs(diff.x) > Math.Abs(diff.y)) mouseProjPos.y = startPos.y;
-            else mouseProjPos.x = startPos.x;
+            Vector2 mousePos = proofInput.GetCurrentMousePos();
+            mouseProjPos = proofInput.OrthoProjectionFromOrigin(mousePos,startPos);
+            Vector2Int mouseProjCell = (Vector2Int)grid.LocalToCell(mouseProjPos);
+            mouseProjCell.y *= -1;
+
+            Vector2Int d = proofInput.PointsToDirection(startPos,mouseProjPos);
+            d.y *= -1;
         
-            // approximate the current mouse drag into a move
-            diff =  mouseProjPos - startPos;
-            int dy = -Math.Sign(diff.y);
-            int dx = Math.Sign(diff.x);
             // determine if we should track the mouse this frame or not
-            var mouseProjCell = grid.LocalToCell(mouseProjPos);
-            var startCell = grid.LocalToCell(startPos);
-            trackingMouse =(mouseProjCell.x != startCell.x || 
-                            mouseProjCell.y != startCell.y) &&
-                            board.IsValidMove(clickCoord.y,clickCoord.x,dy,dx);
+            trackingMouse =(mouseProjCell.x != clickCell.x || 
+                            mouseProjCell.y != clickCell.y) &&
+                            board.IsValidMove(clickCoord.y,clickCoord.x,d.y,d.x);
 
             if (trackingMouse)
             {
                 try
                 {
                     // get the end location in world position
-                    var dest = board.CalculateMove(clickCoord.y, clickCoord.x, dy, dx);
+                    var dest = board.CalculateMove(clickCoord.y, clickCoord.x, d.y, d.x);
                     int i,j; (i,j) = dest;
                     i = (i-1)/2; // convert coords to cell space
                     j = (j-1)/2;
@@ -205,7 +199,7 @@ public class BoardRenderer : MonoBehaviour
                     var endPos = grid.CellToLocal((Vector3Int)endCell) 
                                                   + new Vector3(0.5f, 0.5f, 0);
                     // make sure the penguin does not go past the end location
-                    var ghostDist = (startPos-mouseProjPos).magnitude;
+                    var ghostDist = (startPos-(Vector3)mouseProjPos).magnitude;
                     var endDist = (startPos-endPos).magnitude;
                     if (ghostDist > endDist) mouseProjPos = endPos;
                 } 
@@ -218,13 +212,13 @@ public class BoardRenderer : MonoBehaviour
             {
                 mouseProjPos = startPos;
             }
-            var lerpDest = (Vector3)mouseProjPos;
-            lerpDest.z = -2f;
+            var lerpEnd = (Vector3)mouseProjPos;
+            lerpEnd.z = -2f;
             // move the ghost closer to wherever we want it
             var cur = ghost.transform.position;
             ghost.transform.position = mouseProjPos;
             ghost.transform.position = 
-                Vector3.Lerp(cur, lerpDest, Time.deltaTime*10f);
+                Vector3.Lerp(cur, lerpEnd, Time.deltaTime*10f);
             
             yield return null; // done until next frame
         }
@@ -235,6 +229,7 @@ public class BoardRenderer : MonoBehaviour
                 ghost.transform.position;
         }
         // delete the new gameobject
+        Destroy(ghost);
     }
     public void Redraw(Board board)
     {

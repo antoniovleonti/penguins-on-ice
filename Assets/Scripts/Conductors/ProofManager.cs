@@ -77,24 +77,21 @@ public class ProofManager : MonoBehaviour
         hasTried[currentPlayer] = true;
         Debug.Log("Current bid: player " + currentPlayer + " for " + currentBid);
     }
-    public void TryMove(int startY, int startX, int dY, int dX)
+    public IEnumerator TryMove(int startY, int startX, int dY, int dX)
     {
         if (!BoardState.IsValidMove(startY,startX,dY,dX)) 
         {
-            return;
+            yield break;
         }
-        StartCoroutine(MakeMove(startY,startX,dY,dX));
-    }
-    IEnumerator MakeMove (int startY, int startX, int dY, int dX)
-    {
+
         // calculate move dest and animate it
         int endY,endX; (endY,endX) = BoardState.CalculateMove(startY,startX, dY,dX);
-        // TODO: bRenderer.AnimateMove()
-
-        pm.Players[currentPlayer].TickerValue++;
-        ui.RefreshPlayer(currentPlayer,pm.Players[currentPlayer]);
 
         bool didWin = BoardState.MakeMove(startY,startX,dY,dX);
+
+        pm.Players[currentPlayer].TickerValue = BoardState.MoveCount;
+        ui.RefreshPlayer(currentPlayer,pm.Players[currentPlayer]);
+
         // animate the move and WAIT until it's done.
         input.enabled = false;
         yield return StartCoroutine(

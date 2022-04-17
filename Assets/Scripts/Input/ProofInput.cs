@@ -23,6 +23,11 @@ public class ProofInput : MonoBehaviour
         bRenderer = gameObject.GetComponent<BoardRenderer>();
     }
 
+    void EndProofs ()
+    {
+        StopAllCoroutines();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -30,43 +35,99 @@ public class ProofInput : MonoBehaviour
         {
             Vector2Int clickCell = GetCurrentMouseCell();
 
-            StartCoroutine( listenForMouseRelease(clickCell));
+            StartCoroutine(listenForMouseRelease(clickCell));
             StartCoroutine(
                 bRenderer.MouseDragFeedback(clickCell, manager.BoardState));
         }
     }
     IEnumerator listenForMouseRelease (Vector2Int clickCell)
     {
-        Debug.Log(clickCell);
         while (!Mouse.current.leftButton.wasReleasedThisFrame)
         {
             yield return null; // do nothing this frame
         }
-        // we now know that the mouse was released this frame.
-        Vector2Int releaseCell = GetCurrentMouseCell();
+        Vector3Int gridClickCell = new Vector3Int(clickCell.x,-clickCell.y,0);
+        Vector3 startPos = grid.GetCellCenterLocal(gridClickCell);
 
-        // snap dragged direction to one of four orthogonal directions
-        var diff = releaseCell - clickCell;
-        if(Mathf.Abs(diff.x) > Mathf.Abs(diff.y))
+        Vector2 mousePos = GetCurrentMousePos();
+        Vector2 mouseProjPos = OrthoProjectionFromOrigin(mousePos,startPos);
+        Vector2Int mouseProjCell = (Vector2Int)grid.LocalToCell(mouseProjPos);
+        mouseProjCell.y *= -1;
+
+        Vector2Int d = PointsToDirection(startPos,mouseProjPos);
+        d.y *= -1;
+
+        if (clickCell == mouseProjCell)
         {
-            releaseCell.y = clickCell.y;
+            // player has released on the same square they clicked
+            StartCoroutine(listenToArrowKeys(clickCell));
         }
         else
         {
-            releaseCell.x = clickCell.x;
+            // try to make the move
+            Vector2Int clickCoord = 
+                new Vector2Int( Board.CellToCoord(clickCell.x),
+                                Board.CellToCoord(clickCell.y));
+            StartCoroutine(manager.TryMove(clickCoord.y, clickCoord.x, d.y, d.x));
         }
+    }
 
-        Vector2Int clickCoord = new Vector2Int( Board.CellToCoord(clickCell.x),
-                                                Board.CellToCoord(clickCell.y));
-        // calculate the direction the player dragged in
-        diff = releaseCell - clickCell; // needs to be updated
-        int dx = Math.Sign(diff.x);
-        int dy = Math.Sign(diff.y);
+    IEnumerator listenToArrowKeys (Vector2Int activePenguin)
+    {
+        bool down, up, left, right;
+        do
+        {
+            yield return null;
 
-        Debug.Log((clickCoord.y,clickCoord.x,dy,dx));
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+                yield break;
 
-        // try to make the move
-        manager.TryMove(clickCoord.y, clickCoord.x, dy, dx);
+            down = Keyboard.current.downArrowKey.wasPressedThisFrame;
+            up = Keyboard.current.upArrowKey.wasPressedThisFrame;
+            left = Keyboard.current.leftArrowKey.wasPressedThisFrame;
+            right = Keyboard.current.rightArrowKey.wasPressedThisFrame;
+        }
+        while (!(down || up || left || right));
+
+        // else
+        var d = new Vector2Int();
+
+        d.y += (down?1:0) + (up?-1:0);
+        d.x += (left?-1:0) + (right?1:0);
+
+        Vector2Int coord = 
+            new Vector2Int( Board.CellToCoord(activePenguin.x),
+                            Board.CellToCoord(activePenguin.y));
+
+        int yCoord,xCoord;
+        (yCoord,xCoord) = 
+            manager.BoardState.CalculateMove(coord.y, coord.x,
+                                             d.y, d.x);
+
+        var newActivePenguin = new Vector2Int(xCoord,yCoord);
+        newActivePenguin.x = (newActivePenguin.x-1)/2;
+        newActivePenguin.y = (newActivePenguin.y-1)/2;
+
+        yield return StartCoroutine(manager.TryMove(coord.y,coord.x,d.y,d.x));
+        StartCoroutine(listenToArrowKeys(newActivePenguin));
+    }
+
+    public Vector2 OrthoProjectionFromOrigin(Vector2 point, Vector2 source)
+    {
+        // calculate ghost position from mouseProjPos mouse position
+        var d = point - source;
+        if (Math.Abs(d.x) > Math.Abs(d.y)) 
+            point.y = source.y;
+        else 
+            point.x = source.x;
+
+        return point;
+    }
+
+    public Vector2Int PointsToDirection(Vector2 start, Vector2 end)
+    {
+        var d = end - start;
+        return new Vector2Int(Math.Sign(d.x), Math.Sign(d.y));
     }
 
     public Vector2Int GetCurrentMouseCell ()

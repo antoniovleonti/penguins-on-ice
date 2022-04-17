@@ -104,9 +104,16 @@ public class Board
     }
     public bool MakeMove(int startCol, int startRow, int dCol, int dRow)
     {
-        previousMoves.Push(new Board(this));
         (int,int) tmp = CalculateMove(startCol,startRow,dCol,dRow);
         int newCol, newRow; (newCol,newRow) = tmp; 
+
+        if (startCol == newCol && startRow == newRow)
+        {
+            // The penguin didn't move. Do nothing.
+            // we'll assume they haven't won yet since they're still playing.
+            return false; 
+        }
+        previousMoves.Push(new Board(this));
 
         int activePenguin = Penguins[startCol,startRow];
         Penguins[startCol,startRow] = 0;
