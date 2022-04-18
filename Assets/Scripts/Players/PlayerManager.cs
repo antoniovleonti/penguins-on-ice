@@ -51,6 +51,7 @@ public class PlayerManager : MonoBehaviour
       Players[i].IsActive = false;
       Players[i].HasTried = false;
       Players[i].TickerValue = 0;
+      Players[i].CurrentBid = 0;
       // update ui
       ui.RefreshPlayer(i, Players[i]);
     }
@@ -64,13 +65,6 @@ public class PlayerManager : MonoBehaviour
       Players[i].Concedes = false;
       Players[i].TickerValue = 0;
       ui.RefreshPlayer(i, Players[i]);
-    }
-  }
-
-  void EndProofs ()
-  {
-    for (int i = 0; i < PlayerCount; i++)
-    {
     }
   }
 

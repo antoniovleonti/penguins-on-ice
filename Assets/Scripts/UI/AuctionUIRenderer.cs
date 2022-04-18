@@ -82,7 +82,6 @@ public class AuctionUIRenderer : MonoBehaviour
         string s;
         if (info.IsActive) 
         {
-            Debug.Log($"{player} : green");
             c = Color.green;
             s = "(Showing)";
         }
@@ -93,7 +92,6 @@ public class AuctionUIRenderer : MonoBehaviour
         }
         else 
         {
-            Debug.Log($"{player} : white");
             c = Color.white;
             s = "";
         }

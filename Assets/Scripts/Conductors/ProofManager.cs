@@ -78,7 +78,6 @@ public class ProofManager : MonoBehaviour
             (currentPlayer, currentBid) = bidQ.Dequeue();
             first = false;
         }
-        Debug.Log("Current bid: player " + currentPlayer + " for " + currentBid);
         pm.Players[currentPlayer].IsActive = true;
         ui.RefreshPlayer(currentPlayer, pm.Players[currentPlayer]);
     }
