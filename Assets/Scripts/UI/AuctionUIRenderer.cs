@@ -9,6 +9,7 @@ public class AuctionUIRenderer : MonoBehaviour
     public GameObject TrackerPrefab;
     public GameObject ClockPrefab;
     public GameObject PhaseDisplayPrefab;
+    public GameObject PopupTextPrefab;
     GameObject uiParent;
     List<PlayerTracker> trackers;
     ClockDisplay clock;
@@ -66,16 +67,16 @@ public class AuctionUIRenderer : MonoBehaviour
     public void RefreshWins(int[] wins)
     {
         for (int i = 0; i < trackers.Count; i++)
-            trackers[i].Wins = wins[i].ToString();
+            trackers[i].Wins = wins[i];
     }
 
 
 
     public void RefreshPlayer(int player, Player info)
     {
-        trackers[player].Wins = info.Wins.ToString();
+        trackers[player].Wins = info.Wins;
         trackers[player].TickerValue = info.TickerValue.ToString();
-        trackers[player].CurrentBid = info.CurrentBid.ToString();
+        trackers[player].CurrentBid = info.CurrentBid;
         trackers[player].Name = info.Name;
 
         Color c;
@@ -133,7 +134,7 @@ public class AuctionUIRenderer : MonoBehaviour
         }
         // make a new one for player p
         var newTracker = GameObject.Instantiate(TrackerPrefab, uiParent.transform);
-        trackers.Add(new PlayerTracker(newTracker));
+        trackers.Add(new PlayerTracker(newTracker, PopupTextPrefab));
 
         var pos_ = new Vector2(leftx + count * (trackerWidth + trackerGap), 30f);
         trackers[count].Pos = pos_;
@@ -154,9 +155,11 @@ public class AuctionUIRenderer : MonoBehaviour
 class PlayerTracker
 {
     GameObject go;
-    public PlayerTracker(GameObject go_)
+    GameObject popup;
+    public PlayerTracker(GameObject go_, GameObject popupTextPrefab)
     {
         go = go_;
+        popup = popupTextPrefab;
     }
     public string Name
     {
@@ -168,20 +171,44 @@ class PlayerTracker
         get {return getChildTextField("STATUS").text; }
         set { getChildTextField("STATUS").text = value; }
     }
-    public string Wins
+    int wins;
+    public int Wins
     {
-        get { return getChildTextField("WINS").text; }
-        set { getChildTextField("WINS").text = value; }
+        get { return wins; }
+        set { 
+            if (value != wins)
+            {
+                var tf = getChildTextField("WINS").gameObject.transform;
+                GameObject floatingText = 
+                    GameObject.Instantiate(popup, tf.position + Vector3.up*1f, Quaternion.identity, tf);
+                floatingText.GetComponent<TMP_Text>().color = Color.blue;
+                floatingText.GetComponent<TextPopup>().displayText =  "+1!";
+            }
+            wins = value;
+            getChildTextField("WINS").text = value.ToString(); 
+        }
     }
     public string TickerValue
     {
         get { return getChildTextField("TICKER").text; }
         set { getChildTextField("TICKER").text = value; }
     }
-    public string CurrentBid
+    int currentBid;
+    public int CurrentBid
     {
-        get { return getChildTextField("BID").text; }
-        set { getChildTextField("BID").text = value; }
+        get { return currentBid; }
+        set { 
+            if (value != 0 && value != currentBid)
+            {
+                var tf = getChildTextField("BID").gameObject.transform;
+                GameObject floatingText = 
+                    GameObject.Instantiate(popup, tf.position + Vector3.up*1f, Quaternion.identity, tf);
+                floatingText.GetComponent<TMP_Text>().color = Color.green;
+                floatingText.GetComponent<TextPopup>().displayText = value.ToString() + "!";
+            }
+            currentBid = value;
+            getChildTextField("BID").text = value.ToString(); 
+        }
     }
     public Vector2 Pos
     {

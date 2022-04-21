@@ -282,6 +282,7 @@ MonoBehaviour:
   TrackerPrefab: {fileID: 3204796022339014432, guid: 0676803b7a67349d7bd552cc1e316735, type: 3}
   ClockPrefab: {fileID: 7314665558392581267, guid: 637131bc37772238c8b3d5924790607e, type: 3}
   PhaseDisplayPrefab: {fileID: 7314665558392581267, guid: 310218455293f40c49c973bc7aec318c, type: 3}
+  PopupTextPrefab: {fileID: 3480608761325887500, guid: aab24fbf1776e4162bb0ae7def9605db, type: 3}
 --- !u!114 &1193036759
 MonoBehaviour:
   m_ObjectHideFlags: 0
