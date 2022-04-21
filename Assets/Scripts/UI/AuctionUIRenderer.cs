@@ -125,19 +125,40 @@ public class AuctionUIRenderer : MonoBehaviour
     {
         var count = trackers.Count;
         float leftx = -((count) * trackerWidth + count * trackerGap) / 2;
-        
-        // reposition existing trackers
-        for (int i = 0; i < count; i++)
-        {
-            var pos = new Vector2(leftx + i * (trackerWidth + trackerGap), 40f);
-            trackers[i].Pos = pos;
-        }
-        // make a new one for player p
+
         var newTracker = GameObject.Instantiate(TrackerPrefab, uiParent.transform);
         trackers.Add(new PlayerTracker(newTracker, PopupTextPrefab));
-
-        var pos_ = new Vector2(leftx + count * (trackerWidth + trackerGap), 40f);
+        var world = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width,0f,0f));
+        var local = uiParent.transform.InverseTransformPoint(world);
+        var pos_ = new Vector2(leftx + (count+1) * (trackerWidth + trackerGap), 40f);
+        pos_.x = local.x;
         trackers[count].Pos = pos_;
+
+        StartCoroutine(RepositionTrackers(leftx));
+
+    }
+    IEnumerator RepositionTrackers (float leftx)
+    {
+        // reposition existing trackers
+        float totalTime = 0.15f;
+        float elapsed = 0f;
+        int count = trackers.Count;
+        Vector2[] endPos = new Vector2[count];
+        Vector2[] startPos = new Vector2[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            startPos[i] = trackers[i].Pos;
+            endPos[i] = new Vector2(leftx + i * (trackerWidth + trackerGap), 40f);
+        }
+        while (trackers[0].Pos != endPos[0])
+        for (int i = 0; i < count; i++)
+        {
+            elapsed += Time.deltaTime;
+            elapsed = elapsed > 1 ? 1 : elapsed;
+            trackers[i].Pos = Vector2.Lerp(startPos[i],endPos[i],elapsed/totalTime);
+            yield return null;
+        }
     }
 
     private void eraseUI ()
