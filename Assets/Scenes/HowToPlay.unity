@@ -965,6 +965,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainMenuButton: {fileID: 570636627}
+  popupTextPrefab: {fileID: 7704009097725503990, guid: 0cba060e407a0ce409f7f4215473d687, type: 3}
 --- !u!1 &1503256219
 GameObject:
   m_ObjectHideFlags: 0

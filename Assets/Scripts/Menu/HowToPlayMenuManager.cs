@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using UnityEngine.SceneManagement;
 
 public class HowToPlayMenuManager : MonoBehaviour
 {
     public Button mainMenuButton;
     private AssetBundle myAssetBundle;
+    public GameObject popupTextPrefab;
 
     
     // Start is called before the first frame update
@@ -25,6 +27,12 @@ public class HowToPlayMenuManager : MonoBehaviour
 
     public void mainMenuOnClick()
     {
-        SceneManager.LoadScene(0);
+        //Vector3 spawn = new Vector3(0,0,1);
+        Vector3 spawn = mainMenuButton.transform.position + new Vector3(0, 10, 2);
+        Debug.Log("Spawn = "+ spawn.ToString("F3"));
+        GameObject floatingText = Instantiate(popupTextPrefab, spawn, Quaternion.identity);
+        floatingText.GetComponent<TMP_Text>().color = Color.red;
+        floatingText.GetComponent<TextPopup>().displayText = "Val";
+        //SceneManager.LoadScene(0);
     }
 }
