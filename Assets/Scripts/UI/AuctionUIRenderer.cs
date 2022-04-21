@@ -75,7 +75,7 @@ public class AuctionUIRenderer : MonoBehaviour
     public void RefreshPlayer(int player, Player info)
     {
         trackers[player].Wins = info.Wins;
-        trackers[player].TickerValue = info.TickerValue.ToString();
+        trackers[player].TickerValue = info.TickerValue;
         trackers[player].CurrentBid = info.CurrentBid;
         trackers[player].Name = info.Name;
 
@@ -129,14 +129,14 @@ public class AuctionUIRenderer : MonoBehaviour
         // reposition existing trackers
         for (int i = 0; i < count; i++)
         {
-            var pos = new Vector2(leftx + i * (trackerWidth + trackerGap), 30f);
+            var pos = new Vector2(leftx + i * (trackerWidth + trackerGap), 40f);
             trackers[i].Pos = pos;
         }
         // make a new one for player p
         var newTracker = GameObject.Instantiate(TrackerPrefab, uiParent.transform);
         trackers.Add(new PlayerTracker(newTracker, PopupTextPrefab));
 
-        var pos_ = new Vector2(leftx + count * (trackerWidth + trackerGap), 30f);
+        var pos_ = new Vector2(leftx + count * (trackerWidth + trackerGap), 40f);
         trackers[count].Pos = pos_;
     }
 
@@ -154,6 +154,7 @@ public class AuctionUIRenderer : MonoBehaviour
 
 class PlayerTracker
 {
+    static System.Random rand = new System.Random();
     GameObject go;
     GameObject popup;
     public PlayerTracker(GameObject go_, GameObject popupTextPrefab)
@@ -188,10 +189,30 @@ class PlayerTracker
             getChildTextField("WINS").text = value.ToString(); 
         }
     }
-    public string TickerValue
+    int tickerValue;
+    public int TickerValue
     {
-        get { return getChildTextField("TICKER").text; }
-        set { getChildTextField("TICKER").text = value; }
+        get { return tickerValue; }
+        set { 
+            if (value != 0 && value != tickerValue)
+            {
+                var tf = getChildTextField("TICKER").gameObject.transform;
+                Vector3 offset = Vector3.up * (value > tickerValue ? 1f : -1f);
+                float maxLROffset = 0.5f;
+                offset += Vector3.right * (float)(rand.NextDouble()*maxLROffset - maxLROffset/2);
+                GameObject floatingText = 
+                    GameObject.Instantiate( popup, 
+                                            tf.position + offset, 
+                                            Quaternion.identity, 
+                                            tf);
+                floatingText.GetComponent<TMP_Text>().color = Color.black;
+                var popupComp = floatingText.GetComponent<TextPopup>();
+                popupComp.DisplayText = value > tickerValue ? "+" : "-";
+                popupComp.Direction = value > tickerValue ? Vector3.up : Vector3.down;
+            }
+            tickerValue = value;
+            getChildTextField("TICKER").text = value.ToString(); 
+        }
     }
     int currentBid;
     public int CurrentBid
