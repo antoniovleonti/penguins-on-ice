@@ -8,15 +8,16 @@ using DG.Tweening;
 public class TextPopup : MonoBehaviour
 {
     [HideInInspector]
-    public string displayText;
+    public string DisplayText = "!";
+    public Vector3 Direction = Vector3.up;
     
     // Start is called before the first frame update
     void Start()
     {
         TMP_Text tmp_text = GetComponent<TMP_Text>();
-        tmp_text.text = displayText;
+        tmp_text.text = DisplayText;
         tmp_text.DOFade(0f, 1f);
-        transform.DOMove(transform.position + Vector3.up, 1.05f).OnComplete(() => {
+        transform.DOMove(transform.position + Direction, 1.05f).OnComplete(() => {
             Destroy(gameObject);
         });
     }

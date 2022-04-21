@@ -182,7 +182,7 @@ class PlayerTracker
                 GameObject floatingText = 
                     GameObject.Instantiate(popup, tf.position + Vector3.up*1f, Quaternion.identity, tf);
                 floatingText.GetComponent<TMP_Text>().color = Color.blue;
-                floatingText.GetComponent<TextPopup>().displayText =  "+1!";
+                floatingText.GetComponent<TextPopup>().DisplayText =  "+1!";
             }
             wins = value;
             getChildTextField("WINS").text = value.ToString(); 
@@ -204,7 +204,7 @@ class PlayerTracker
                 GameObject floatingText = 
                     GameObject.Instantiate(popup, tf.position + Vector3.up*1f, Quaternion.identity, tf);
                 floatingText.GetComponent<TMP_Text>().color = Color.yellow;
-                floatingText.GetComponent<TextPopup>().displayText = value.ToString() + "!";
+                floatingText.GetComponent<TextPopup>().DisplayText = value.ToString() + "!";
             }
             currentBid = value;
             getChildTextField("BID").text = value.ToString(); 
