@@ -95,7 +95,7 @@ public class PlayerManager : MonoBehaviour
 
   public bool PollForConcessions ()
   {
-    bool allConceded = true;
+    bool allConceded = PlayerCount > 0;
 
     for (int i = 0; i < PlayerCount; i++)
     {

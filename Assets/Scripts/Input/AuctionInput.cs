@@ -31,5 +31,9 @@ public class AuctionInput : MonoBehaviour
     {
         pm.PollTickers();
         pm.PollForBids();
+        if (pm.PollForConcessions())
+        {
+            auctioneer.RemainingSeconds = 0f;
+        }
     }
 }

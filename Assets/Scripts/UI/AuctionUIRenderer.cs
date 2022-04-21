@@ -203,7 +203,7 @@ class PlayerTracker
                 var tf = getChildTextField("BID").gameObject.transform;
                 GameObject floatingText = 
                     GameObject.Instantiate(popup, tf.position + Vector3.up*1f, Quaternion.identity, tf);
-                floatingText.GetComponent<TMP_Text>().color = Color.green;
+                floatingText.GetComponent<TMP_Text>().color = Color.yellow;
                 floatingText.GetComponent<TextPopup>().displayText = value.ToString() + "!";
             }
             currentBid = value;

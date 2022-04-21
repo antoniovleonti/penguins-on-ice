@@ -45,10 +45,6 @@ public class Auctioneer : MonoBehaviour
         if (bidQ.Count > 0)
         {
             // a bid has been made; start the countdown.
-            if (pm.PollForConcessions())
-            {
-                RemainingSeconds = Time.deltaTime;
-            }
             RemainingSeconds -= Time.deltaTime;
             ui.RefreshTime(RemainingSeconds);
         }
