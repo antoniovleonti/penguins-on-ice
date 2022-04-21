@@ -89,7 +89,7 @@ public class AuctionUIRenderer : MonoBehaviour
         else if (info.Concedes || info.HasTried) 
         {
             c = Color.gray;
-            s = info.Concedes ? "(Concedes)" : "(Invalid)";
+            s = info.Concedes ? "(Ready)" : "(Invalid)";
         }
         else 
         {
@@ -151,13 +151,17 @@ public class AuctionUIRenderer : MonoBehaviour
             startPos[i] = trackers[i].Pos;
             endPos[i] = new Vector2(leftx + i * (trackerWidth + trackerGap), 40f);
         }
-        while (trackers[0].Pos != endPos[0])
-        for (int i = 0; i < count; i++)
+        while (elapsed < totalTime)
         {
             elapsed += Time.deltaTime;
             elapsed = elapsed > 1 ? 1 : elapsed;
-            trackers[i].Pos = Vector2.Lerp(startPos[i],endPos[i],elapsed/totalTime);
-            yield return null;
+            var t = elapsed / totalTime;
+            t = Mathf.Sin(t * Mathf.PI * 0.5f);
+            for (int i = 0; i < count; i++)
+            {
+                trackers[i].Pos = Vector2.Lerp(startPos[i],endPos[i],t);
+                yield return null;
+            }
         }
     }
 
