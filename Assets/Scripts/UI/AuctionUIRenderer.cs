@@ -64,13 +64,6 @@ public class AuctionUIRenderer : MonoBehaviour
     {
         phaseDisplay.Text = phase;
     }
-    public void RefreshWins(int[] wins)
-    {
-        for (int i = 0; i < trackers.Count; i++)
-            trackers[i].Wins = wins[i];
-    }
-
-
 
     public void RefreshPlayer(int player, Player info)
     {
@@ -89,7 +82,7 @@ public class AuctionUIRenderer : MonoBehaviour
         else if (info.Concedes || info.HasTried) 
         {
             c = Color.gray;
-            s = info.Concedes ? "(Ready)" : "(Invalid)";
+            s = info.Concedes ? "(Concedes)" : "(Invalid)";
         }
         else 
         {
