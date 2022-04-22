@@ -93,18 +93,24 @@ public class PlayerManager : MonoBehaviour
     }
   }
 
-  public bool PollForConcessions ()
+  public List<int> PollForConcessions ()
   {
     bool allConceded = PlayerCount > 0;
+    List<int> notConceded = new List<int>();
 
     for (int i = 0; i < PlayerCount; i++)
     {
       bool didConcede = Players[i].PollForConcession();
-      allConceded = allConceded && didConcede;
-      ui.RefreshPlayer(i, Players[i]);
+      if (didConcede) 
+      {
+        ui.RefreshPlayer(i, Players[i]);
+      }
+      else
+      {
+        notConceded.Add(i);
+      }
     }
-
-    return allConceded;
+    return notConceded;
   }
 
   public bool PollPlayerForConcession (int player)

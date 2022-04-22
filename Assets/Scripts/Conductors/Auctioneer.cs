@@ -46,6 +46,7 @@ public class Auctioneer : MonoBehaviour
         {
             // a bid has been made; start the countdown.
             RemainingSeconds -= Time.deltaTime;
+            RemainingSeconds = RemainingSeconds < 0 ? 0 : RemainingSeconds;
             ui.RefreshTime(RemainingSeconds);
         }
         if (RemainingSeconds <= 0) 
@@ -61,5 +62,13 @@ public class Auctioneer : MonoBehaviour
     {
         // update bid
         bidQ.Enqueue((player,bid),bid); // add player to queue
+    }
+
+    public int GetLeadingPlayer ()
+    {
+        if (bidQ.Count == 0) return -1;
+        int player,bid; 
+        (player,bid) = bidQ.Peek;
+        return player;
     }
 }

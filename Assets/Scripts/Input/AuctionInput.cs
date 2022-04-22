@@ -31,7 +31,11 @@ public class AuctionInput : MonoBehaviour
     {
         pm.PollTickers();
         pm.PollForBids();
-        if (pm.PollForConcessions())
+
+        var notConceded = pm.PollForConcessions();
+        if ((pm.PlayerCount > 0 && notConceded.Count == 0) ||
+            (   notConceded.Count == 1 && 
+                notConceded[0] == auctioneer.GetLeadingPlayer()))
         {
             auctioneer.RemainingSeconds = 0f;
         }

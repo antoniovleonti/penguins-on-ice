@@ -128,16 +128,16 @@ public class AuctionUIRenderer : MonoBehaviour
         trackers[count].Pos = pos_;
 
         StartCoroutine(RepositionTrackers(leftx));
-
     }
     IEnumerator RepositionTrackers (float leftx)
     {
         // reposition existing trackers
-        float totalTime = 0.15f;
-        float elapsed = 0f;
         int count = trackers.Count;
         Vector2[] endPos = new Vector2[count];
         Vector2[] startPos = new Vector2[count];
+
+        float totalTime = 0.15f;
+        float elapsed = 0f;
 
         for (int i = 0; i < count; i++)
         {
@@ -150,6 +150,7 @@ public class AuctionUIRenderer : MonoBehaviour
             elapsed = elapsed > 1 ? 1 : elapsed;
             var t = elapsed / totalTime;
             t = Mathf.Sin(t * Mathf.PI * 0.5f);
+
             for (int i = 0; i < count; i++)
             {
                 trackers[i].Pos = Vector2.Lerp(startPos[i],endPos[i],t);
