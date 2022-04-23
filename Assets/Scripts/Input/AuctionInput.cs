@@ -32,9 +32,12 @@ public class AuctionInput : MonoBehaviour
         pm.PollTickers();
         pm.PollForBids();
 
-        var notConceded = pm.PollForConcessions();
+        List<int> notConceded = pm.PollForConcessions();
+        // if all players have conceded
         if ((pm.PlayerCount > 0 && notConceded.Count == 0) ||
-            (   notConceded.Count == 1 && 
+            // or if all but the player with the best bid have conceded
+            (   pm.PlayerCount > 1 &&
+                notConceded.Count == 1 && 
                 notConceded[0] == auctioneer.GetLeadingPlayer()))
         {
             auctioneer.RemainingSeconds = 0f;
