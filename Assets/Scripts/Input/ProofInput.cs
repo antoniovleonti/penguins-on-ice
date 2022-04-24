@@ -108,7 +108,8 @@ public class ProofInput : MonoBehaviour
         newActivePenguin.x = (newActivePenguin.x-1)/2;
         newActivePenguin.y = (newActivePenguin.y-1)/2;
 
-        yield return StartCoroutine(manager.TryMove(coord.y,coord.x,d.y,d.x));
+        StartCoroutine(manager.TryMoveQuick(coord.y,coord.x,d.y,d.x));
+
         StartCoroutine(listenToArrowKeys(newActivePenguin));
     }
 
