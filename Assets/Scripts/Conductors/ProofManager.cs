@@ -88,11 +88,10 @@ public class ProofManager : MonoBehaviour
             yield break;
         }
 
-        // calculate move dest and animate it
+        // calculate move dest and play it in the backend
         int endY,endX; (endY,endX) = BoardState.CalculateMove(startY,startX, dY,dX);
-
         bool didWin = BoardState.MakeMove(startY,startX,dY,dX);
-
+        // update player tracker
         pm.Players[currentPlayer].TickerValue = BoardState.MoveCount;
         ui.RefreshPlayer(currentPlayer,pm.Players[currentPlayer]);
 
@@ -101,6 +100,48 @@ public class ProofManager : MonoBehaviour
         yield return StartCoroutine(
             bRenderer.AnimThenRedraw(startY,endY,startX,endX,BoardState));
         input.enabled = true;
+
+        
+        if (didWin) 
+        {   // player actually won
+            if (BoardState.MoveCount == currentBid)
+            {
+                BroadcastMessage("EndProofs", currentPlayer);
+                Destroy(this);
+            }
+            // player's solution was too fast
+            else nextBid();
+        }
+        // player took too many moves
+        else if (BoardState.MoveCount >= currentBid)
+        {
+            nextBid();
+        }
+    }
+    public IEnumerator TryMoveQuick(int startY, int startX, int dY, int dX)
+    {
+        if (!BoardState.IsValidMove(startY,startX,dY,dX)) 
+        {
+            yield break;
+        }
+
+        // calculate move dest and play it
+        int endY,endX; (endY,endX) = BoardState.CalculateMove(startY,startX, dY,dX);
+        bool didWin = BoardState.MakeMove(startY,startX,dY,dX);
+        // update player ticker
+        pm.Players[currentPlayer].TickerValue = BoardState.MoveCount;
+        ui.RefreshPlayer(currentPlayer,pm.Players[currentPlayer]);
+
+        // if this move ended the proof, animate it; otherwise 
+        // skip to the next boardstate immediately
+        if (didWin || BoardState.MoveCount >= currentBid)
+        {
+            input.enabled = false;
+            yield return StartCoroutine(
+                bRenderer.AnimThenRedraw(startY,endY,startX,endX,BoardState));
+            input.enabled = true;
+        }
+        else bRenderer.Redraw(BoardState);
 
         if (didWin) 
         {
