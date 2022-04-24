@@ -5,11 +5,8 @@ using PriorityQueues;
 
 public class Auctioneer : MonoBehaviour
 {
-    public int PlayerCount;
-    public int[] CurrentBids;
     BinaryHeap<(int,int),int> bidQ;
     public float RemainingSeconds = 60f;
-    public RoundManager manager;
     AuctionInput input;
     PlayerManager pm;
     AuctionUIRenderer ui;
@@ -22,8 +19,6 @@ public class Auctioneer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        manager = gameObject.GetComponent<RoundManager>();
-
         ui = gameObject.GetComponent<AuctionUIRenderer>(); 
         pm = gameObject.GetComponent<PlayerManager>();
         input = gameObject.GetComponent<AuctionInput>();

@@ -6,7 +6,6 @@ using UnityEngine.InputSystem;
 public class AuctionInput : MonoBehaviour
 {
     Auctioneer auctioneer;
-    AuctionUIRenderer ui;
     PlayerManager pm;
     
     void Awake()
@@ -16,7 +15,6 @@ public class AuctionInput : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ui = gameObject.GetComponent<AuctionUIRenderer>();
         pm = gameObject.GetComponent<PlayerManager>();
         // this is what we will inform of player actions
         auctioneer = gameObject.GetComponent<Auctioneer>();

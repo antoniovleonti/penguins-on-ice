@@ -6,18 +6,13 @@ using PriorityQueues;
 public class RoundManager : MonoBehaviour
 {
     Board board;
-    Auctioneer auctioneer;
     ProofManager proofs;
     BoardRenderer bRenderer;
-    FlowManager manager;
     
     // Start is called before the first frame update
     void Awake()
     {
         bRenderer = gameObject.GetComponent<BoardRenderer>();
-        manager = gameObject.GetComponent<FlowManager>();
-
-        auctioneer = gameObject.AddComponent<Auctioneer>();
     }
     void Start()
     {
