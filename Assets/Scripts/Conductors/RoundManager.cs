@@ -6,6 +6,7 @@ using PriorityQueues;
 public class RoundManager : MonoBehaviour
 {
     Board board;
+    Auctioneer auctioneer;
     ProofManager proofs;
     BoardRenderer bRenderer;
     
@@ -13,6 +14,7 @@ public class RoundManager : MonoBehaviour
     void Awake()
     {
         bRenderer = gameObject.GetComponent<BoardRenderer>();
+        auctioneer = gameObject.AddComponent<Auctioneer>();
     }
     void Start()
     {
