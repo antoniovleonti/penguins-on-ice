@@ -6,7 +6,6 @@ using PriorityQueues;
 public class ProofManager : MonoBehaviour
 {
     BinaryHeap<(int,int),int> bidQ;
-    bool[] hasTried;
     public Board BoardState;
     BoardRenderer bRenderer;
     AuctionUIRenderer ui;
@@ -24,7 +23,6 @@ public class ProofManager : MonoBehaviour
         input = gameObject.GetComponent<ProofInput>();
         pm = gameObject.GetComponent<PlayerManager>();
         ui = gameObject.GetComponent<AuctionUIRenderer>();
-        hasTried = new bool[64];
     }
 
     void Start()
