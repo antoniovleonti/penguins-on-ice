@@ -43,6 +43,6 @@ public class MainMenuManager : MonoBehaviour
     {
         //Must flip the lines when building
         UnityEditor.EditorApplication.isPlaying = false;
-        //Application.Quit();
+        Application.Quit();
     }
 }
