@@ -48,6 +48,7 @@ public class FlowManager : MonoBehaviour
             for (int i = 0; i < pm.PlayerCount; i++){
                 Scoreboards.ScoreboardEntry entry = new Scoreboards.ScoreboardEntry();
 
+                entry.entryName = pm.Players[i].Name;
                 entry.entryScore = pm.Players[i].Wins;
                 
                 bool scoreAdded = false;
