@@ -126,6 +126,7 @@ public class PlayerManager : MonoBehaviour
       {
         // set up new player
         RegisterPlayer( 
+          $"Gamepad #{registeredGamepads.Count+1}",
           "<Gamepad>/dpad/up", "<Gamepad>/dpad/down",
           "<Gamepad>/buttonEast", "<Gamepad>/buttonSouth", 
           "<Gamepad>/buttonNorth", g);
@@ -140,6 +141,7 @@ public class PlayerManager : MonoBehaviour
   {
     if (kbRightRegistered) return;
     RegisterPlayer( 
+      "Keyboard R",
       "<Keyboard>/I", "<Keyboard>/K", 
       "<Keyboard>/J", "<Keyboard/L", 
       "<Keyboard>/U");
@@ -149,13 +151,15 @@ public class PlayerManager : MonoBehaviour
   {
     if (kbLeftRegistered) return;
     RegisterPlayer( 
+      "Keyboard L",
       "<Keyboard>/W", "<Keyboard>/S", 
       "<Keyboard>/A", "<Keyboard/D", 
       "<Keyboard>/Q");
     kbLeftRegistered = true;
   }
 
-  private void RegisterPlayer(string tup,
+  private void RegisterPlayer(string name,
+                              string tup,
                               string tdown,
                               string treset,
                               string placeBid,
@@ -175,7 +179,6 @@ public class PlayerManager : MonoBehaviour
     
     if (device != null) input.devices = new InputDevice[] { device }; 
 
-    string name = "Player " + (PlayerCount + 1);
     var p = new Player(name, 0, 0, 0, input);
     Players.Add(p);
     ui.AddTracker();
