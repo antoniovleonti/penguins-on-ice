@@ -7,6 +7,7 @@ public class AuctionInput : MonoBehaviour
 {
     Auctioneer auctioneer;
     PlayerManager pm;
+    AudioSource music;
     
     void Awake()
     {

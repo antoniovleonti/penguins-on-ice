@@ -10,6 +10,7 @@ public class Auctioneer : MonoBehaviour
     AuctionInput input;
     PlayerManager pm;
     AuctionUIRenderer ui;
+    AudioSource music;
 
     void Awake()
     {
@@ -19,6 +20,8 @@ public class Auctioneer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        music = gameObject.GetComponent<AudioSource>();
+        music.pitch = 0.75f;
         ui = gameObject.GetComponent<AuctionUIRenderer>(); 
         pm = gameObject.GetComponent<PlayerManager>();
         input = gameObject.GetComponent<AuctionInput>();
@@ -39,6 +42,7 @@ public class Auctioneer : MonoBehaviour
     {
         if (bidQ.Count > 0)
         {
+            if (music.pitch < 1) music.pitch = 1f;
             // a bid has been made; start the countdown.
             RemainingSeconds -= Time.deltaTime;
             RemainingSeconds = RemainingSeconds < 0 ? 0 : RemainingSeconds;
