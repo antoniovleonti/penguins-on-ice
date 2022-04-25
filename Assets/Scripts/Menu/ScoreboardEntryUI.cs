@@ -14,7 +14,7 @@ namespace Scoreboards
         {
             entryNameText.text = sb.entryName;
             if (Equals(sb.entryName, "Player Name")) {
-                entryScoreText.text = "Player Score";
+                entryScoreText.text = "Score";
             } else {
                 entryScoreText.text = sb.entryScore.ToString();
             }

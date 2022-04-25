@@ -557,7 +557,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxEntries: 4
   scoreHolderTransform: {fileID: 1296630320}
-  entryObject: {fileID: 4899034316329572949, guid: b94f538f0e1131743a69eac5f425d9d5, type: 3}
+  entryObject: {fileID: 5079104181061941145, guid: 52120e9f290cc4863b3451fc38138138, type: 3}
   test:
     entryName: Jorf
     entryScore: 420
