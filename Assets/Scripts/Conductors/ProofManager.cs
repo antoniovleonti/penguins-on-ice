@@ -14,6 +14,7 @@ public class ProofManager : MonoBehaviour
     RoundManager manager;
     int currentBid;
     int currentPlayer = -1;
+    float timeLeft = 30f;
 
     // Start is called before the first frame update
     void Awake()
@@ -44,7 +45,15 @@ public class ProofManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (pm.Players[currentPlayer].PollForConcession())
+        timeLeft -= Time.deltaTime;
+        timeLeft = timeLeft < 0 ? 0 : timeLeft;
+        ui.RefreshTime(timeLeft);
+
+        if (timeLeft <= 0)
+        {
+            nextBid();
+        }
+        if (timeLeft < 29.5f && pm.Players[currentPlayer].PollForConcession())
         {
             ui.RefreshPlayer(currentPlayer, pm.Players[currentPlayer]);
             nextBid();
@@ -76,6 +85,9 @@ public class ProofManager : MonoBehaviour
             (currentPlayer, currentBid) = bidQ.Dequeue();
             first = false;
         }
+        timeLeft = 30f;
+        ui.RefreshTime(timeLeft);
+
         pm.Players[currentPlayer].IsActive = true;
         ui.RefreshPlayer(currentPlayer, pm.Players[currentPlayer]);
     }
