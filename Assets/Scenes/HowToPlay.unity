@@ -483,8 +483,8 @@ RectTransform:
   - {fileID: 570636626}
   - {fileID: 76032906}
   - {fileID: 1377621481}
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_Father: {fileID: 1318140028}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -564,7 +564,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1083974186
 GameObject:
@@ -720,7 +720,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 964161975}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -877,10 +878,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1391080746}
+  - component: {fileID: 1391080748}
   - component: {fileID: 1391080745}
   - component: {fileID: 1391080744}
   - component: {fileID: 1391080743}
-  - component: {fileID: 1391080747}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -897,9 +898,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 1391080742}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cfeec7c2452244288d1b0d260e119dd, type: 3}
+  m_Script: {fileID: 11500000, guid: fba496dbd50f29f49ad706ec2f95a002, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileTexs:
+  - {fileID: 2800000, guid: d57f8ddf7afb84bdfbc608a4515bf630, type: 3}
+  - {fileID: 2800000, guid: 3399d04de591a4f13857be2afe70177c, type: 3}
+  PenguinBGTex: {fileID: 2800000, guid: 9f1be259a75884204a580a08e372e978, type: 3}
+  PenguinFGTex: {fileID: 2800000, guid: d4fefd76995daf127abf1f5a0bf9023d, type: 3}
+  TargetBGTex: {fileID: 2800000, guid: ef5ead612650706eebcd5d3c4a1374fa, type: 3}
+  TargetFGTex: {fileID: 2800000, guid: 5a43e5473c04cac5d9a65b0527283ba4, type: 3}
+  LineMat: {fileID: 2100000, guid: b2384b5fe13f748fa81db64ae26bb718, type: 2}
+  IdColors:
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 1, g: 0.61960787, b: 0, a: 1}
+  WallWidth: 0.1
 --- !u!114 &1391080744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -921,23 +936,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1391080742}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e12cf1976ff22476aaa5faa6487071e5, type: 3}
+  m_Script: {fileID: 11500000, guid: 1cfeec7c2452244288d1b0d260e119dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tileTexs:
-  - {fileID: 2800000, guid: d57f8ddf7afb84bdfbc608a4515bf630, type: 3}
-  - {fileID: 2800000, guid: 3399d04de591a4f13857be2afe70177c, type: 3}
-  PenguinBGTex: {fileID: 2800000, guid: 0f734a2e17b434f159afcc0bf3a78d8c, type: 3}
-  PenguinFGTex: {fileID: 2800000, guid: 4ad52b49be97541bd8fe8c75bfd44b26, type: 3}
-  TargetBGTex: {fileID: 2800000, guid: ef5ead612650706eebcd5d3c4a1374fa, type: 3}
-  TargetFGTex: {fileID: 2800000, guid: 5a43e5473c04cac5d9a65b0527283ba4, type: 3}
-  LineMat: {fileID: 2100000, guid: b2384b5fe13f748fa81db64ae26bb718, type: 2}
-  IdColors:
-  - {r: 0.9622642, g: 0.031772893, b: 0.031772893, a: 1}
-  - {r: 0.37254903, g: 0.43921572, b: 0.6509804, a: 1}
-  - {r: 0.9568628, g: 0.80392164, b: 0.28235295, a: 1}
-  - {r: 0.11764707, g: 0.8431373, b: 0.37647063, a: 1}
-  WallWidth: 0.1
 --- !u!4 &1391080746
 Transform:
   m_ObjectHideFlags: 0
@@ -945,14 +946,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1391080742}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 767.3351, y: 596.70966, z: -320.01764}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1391080747
+--- !u!114 &1391080748
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -964,8 +965,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ea9434039c11d545baee198df2a95da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainMenuButton: {fileID: 570636627}
-  popupTextPrefab: {fileID: 3480608761325887500, guid: aab24fbf1776e4162bb0ae7def9605db, type: 3}
+  mainMenuButton: {fileID: 0}
 --- !u!1 &1503256219
 GameObject:
   m_ObjectHideFlags: 0
