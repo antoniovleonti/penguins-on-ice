@@ -6,11 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class ScoreBoardManager : MonoBehaviour
 {
-    // Start is called before the first frame update
     public Button mainMenuButton;
-    private AssetBundle myAssetBundle;
-
-    
+   
     // Start is called before the first frame update
     void Start()
     {

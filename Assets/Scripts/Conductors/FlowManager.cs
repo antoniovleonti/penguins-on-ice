@@ -67,7 +67,10 @@ public class FlowManager : MonoBehaviour
                     saveData.entryList.Add(entry);
                 }
             }
-            
+            Scoreboards.ScoreboardEntry header = new Scoreboards.ScoreboardEntry();
+            header.entryName = "Player Name";
+            header.entryScore = 999999;
+            saveData.entryList.Insert(0, header);
             //Save saveData to file
             using(StreamWriter stream = new StreamWriter($"{Application.persistentDataPath}/scores.json"))
             {

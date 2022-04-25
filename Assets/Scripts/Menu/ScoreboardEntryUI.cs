@@ -13,7 +13,11 @@ namespace Scoreboards
         public void initScoreboard(ScoreboardEntry sb)
         {
             entryNameText.text = sb.entryName;
-            entryScoreText.text = sb.entryScore.ToString();
+            if (Equals(sb.entryName, "Player Name")) {
+                entryScoreText.text = "Player Score";
+            } else {
+                entryScoreText.text = sb.entryScore.ToString();
+            }
         }
     }
 }
