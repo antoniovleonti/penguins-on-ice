@@ -554,18 +554,19 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Players bid the number of moves their solution takes. After the bid timer
-    has ended, players take turns showing their solutions.
+  m_text: 'Players bid the number of moves their solution takes. After the first
+    bid is placed, a timer is started, and players can continue bidding until the
+    timer ends. After this, players take turns showing their solutions.
 
 
-    - the first player
-    to show a correct solution gets 1 point for the round.
+    - the
+    first player to show a correct solution gets 1 point for the round.
 
-    - the player with
-    the lowest bid shows their solution first.
+    - lower
+    priority bids take priority over higher bids.
 
-    - if 2+ players have the same
-    bid, the one who bid first shows their solution first.'
+    - of equal bids, earlier bids
+    take priority over later bids.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
   m_sharedMaterial: {fileID: 8684509865699894524, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
@@ -1003,7 +1004,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.15000153, y: 0.07999992}
+  m_AnchoredPosition: {x: 0.14990234, y: 0.07999992}
   m_SizeDelta: {x: -59.11, y: -6.64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1503256221
