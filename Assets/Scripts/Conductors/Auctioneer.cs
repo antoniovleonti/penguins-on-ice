@@ -21,7 +21,7 @@ public class Auctioneer : MonoBehaviour
     void Start()
     {
         music = gameObject.GetComponent<AudioSource>();
-        music.pitch = 0.75f;
+        music.pitch = 0.65f;
         ui = gameObject.GetComponent<AuctionUIRenderer>(); 
         pm = gameObject.GetComponent<PlayerManager>();
         input = gameObject.GetComponent<AuctionInput>();
@@ -42,11 +42,24 @@ public class Auctioneer : MonoBehaviour
     {
         if (bidQ.Count > 0)
         {
-            if (music.pitch < 1) music.pitch = 1f;
+            if (music.pitch < 1) 
+            {
+                music.pitch += Time.deltaTime;
+                music.pitch = music.pitch > 1f? 1f : music.pitch;
+            }
+            
             // a bid has been made; start the countdown.
             RemainingSeconds -= Time.deltaTime;
             RemainingSeconds = RemainingSeconds < 0 ? 0 : RemainingSeconds;
             ui.RefreshTime(RemainingSeconds);
+        }
+        else
+        {
+            if (music.pitch > 0.65f)
+            {
+                music.pitch -= Time.deltaTime;
+                music.pitch = music.pitch < 0.65f ? 0.65f : music.pitch;
+            }
         }
         if (RemainingSeconds <= 0) 
         {

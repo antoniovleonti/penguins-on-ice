@@ -556,17 +556,17 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Players bid the number of moves their solution takes. After the first
     bid is placed, a timer is started, and players can continue bidding until the
-    timer ends. After this, players take turns showing their solutions.
+    timer ends. After this, players show their solutions.
 
 
-    - the
-    first player to show a correct solution gets 1 point for the round.
+    - the first player
+    to show a correct solution gets 1 point for the round.
 
-    - lower
-    priority bids take priority over higher bids.
+    - lower bids take
+    priority over higher bids.
 
-    - of equal bids, earlier bids
-    take priority over later bids.'
+    - of equal bids, earlier bids take priority over
+    later bids.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
   m_sharedMaterial: {fileID: 8684509865699894524, guid: 33fa4b31d2ce6e6b2922e713d007dcd0, type: 2}
