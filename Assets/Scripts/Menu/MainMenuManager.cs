@@ -42,7 +42,7 @@ public class MainMenuManager : MonoBehaviour
     public void exitOnClick()
     {
         //Must flip the lines when building
-        UnityEditor.EditorApplication.isPlaying = false;
+        // UnityEditor.EditorApplication.isPlaying = false;
         Application.Quit();
     }
 }
